@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import { Nav } from "@/components/site/nav";
 import { Footer } from "@/components/site/footer";
+import { LivingBackground } from "@/components/living-background";
 import "./globals.css";
 
 const display = Fraunces({
@@ -72,6 +73,7 @@ export default function RootLayout({
       className={`${display.variable} ${body.variable} ${mono.variable}`}
     >
       <body className="min-h-dvh antialiased">
+        <LivingBackground />
         <Nav />
         <div className="relative z-10">{children}</div>
         <Footer />
