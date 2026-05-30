@@ -12,7 +12,7 @@ function resolveModel(): LanguageModel {
   const googleKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
   if (googleKey) {
     const google = createGoogleGenerativeAI({ apiKey: googleKey });
-    return google(process.env.ADVOCATE_GOOGLE_MODEL ?? "gemini-2.0-flash");
+    return google(process.env.ADVOCATE_GOOGLE_MODEL ?? "gemini-2.5-flash");
   }
   return process.env.ADVOCATE_MODEL ?? "google/gemini-2.0-flash";
 }
