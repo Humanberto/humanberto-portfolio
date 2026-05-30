@@ -5,6 +5,8 @@
  * this one - the UI, API route wiring, and tools stay identical.
  */
 
+import type { LanguageModel } from "ai";
+
 export interface AdvocateFactItem {
   /** Short label, e.g. "Head of Production - Kettner Distillery". */
   label: string;
@@ -51,9 +53,13 @@ export interface AdvocateConfig {
   tools: AdvocateToolFlags;
   capabilities: AdvocateCapabilities;
   suggestedPrompts: string[];
-  /** Model id resolved by the Vercel AI Gateway, e.g. "google/gemini-2.0-flash". */
-  model: string;
-  /** Optional ordered fallback models for the gateway. */
+  /**
+   * The model to use. Either a Vercel AI Gateway id string
+   * (e.g. "google/gemini-2.0-flash") or a provider model instance from an
+   * @ai-sdk/* package (e.g. google("gemini-2.0-flash")).
+   */
+  model: LanguageModel;
+  /** Optional ordered fallback models for the gateway (string ids only). */
   fallbackModels?: string[];
   theme?: {
     accent?: string;

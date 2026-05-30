@@ -12,6 +12,7 @@
     "clean": "rimraf .next .turbo node_modules"
   },
   "dependencies": {
+    "@ai-sdk/google": "^3.0.80",
     "@calcom/embed-react": "^1.5.3",
     "@humanberto/advocate-agent": "*",
     "@humanberto/ui": "*",

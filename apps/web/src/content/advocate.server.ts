@@ -1,5 +1,21 @@
+import type { LanguageModel } from "ai";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import type { AdvocateConfig } from "@humanberto/advocate-agent";
 import { site } from "@/lib/site";
+
+/**
+ * Pick the LLM. If a Google AI Studio key is present we call Gemini directly
+ * (free tier, no credit card). Otherwise we fall back to a Vercel AI Gateway
+ * model id string. Swap providers by changing only this resolver or the env.
+ */
+function resolveModel(): LanguageModel {
+  const googleKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  if (googleKey) {
+    const google = createGoogleGenerativeAI({ apiKey: googleKey });
+    return google(process.env.ADVOCATE_GOOGLE_MODEL ?? "gemini-2.0-flash");
+  }
+  return process.env.ADVOCATE_MODEL ?? "google/gemini-2.0-flash";
+}
 
 /**
  * Server-only advocate configuration. Holds the verified facts and the system
@@ -10,7 +26,7 @@ import { site } from "@/lib/site";
  */
 export const advocateConfig: AdvocateConfig = {
   persona: `${site.name}'s AI advocate`,
-  model: process.env.ADVOCATE_MODEL ?? "google/gemini-2.0-flash",
+  model: resolveModel(),
   fallbackModels: ["openai/gpt-4o-mini", "anthropic/claude-haiku-4.5"],
   systemPrompt: `
 You represent ${site.name} - a product designer and Python developer based in ${site.location}.
