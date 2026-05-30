@@ -84,7 +84,7 @@ export const projects: Project[] = [
       "Clear data model and auth that demonstrates full-stack and product thinking end to end.",
     ],
     stack: ["Next.js", "TypeScript", "Supabase (Postgres + Auth)", "Tailwind"],
-    links: {},
+    links: { repo: "https://github.com/Humanberto/vztr-help" },
   },
   {
     slug: "petchmaker",
@@ -111,7 +111,7 @@ export const projects: Project[] = [
       "Shows product judgment around a sensitive, human problem - plus the data model behind it.",
     ],
     stack: ["Next.js", "TypeScript", "Supabase (Postgres + Auth)", "Tailwind"],
-    links: {},
+    links: { repo: "https://github.com/Humanberto/petchmaker" },
   },
   {
     slug: "falafel-heights-redesign",
@@ -215,6 +215,57 @@ export const projects: Project[] = [
     ],
     stack: ["Figma", "Information architecture", "Prototyping"],
     links: {},
+  },
+  {
+    slug: "duckdb-rides-pipeline",
+    title: "DuckDB Rides Pipeline",
+    tagline: "A tidy ETL + analytics pipeline you can read end to end.",
+    year: "2026",
+    role: "Data engineering",
+    pillars: ["Data Engineering", "Python"],
+    status: "live",
+    accent: "purple",
+    summary:
+      "A small, self-contained pipeline in the real shape of a data job: ingest messy raw events, validate and enrich them, load into DuckDB, and answer business questions with SQL - then write a report.",
+    problem:
+      "Toy data projects skip the parts that matter - validation, derived columns, and turning rows into answers. I wanted a compact, honest example that does the whole loop and runs offline in seconds.",
+    approach: [
+      "Generated deterministic sample events with intentionally broken rows (zero distance/duration).",
+      "Cleaned with pandas: parsed timestamps, computed duration, dropped impossible rows, derived tip % and fare-per-mile.",
+      "Loaded the clean frame into a DuckDB table and answered questions with SQL (revenue by day, busiest hours).",
+      "Covered the validation and analytics with tests.",
+    ],
+    outcomes: [
+      "A runnable, tested pipeline that demonstrates the full ingest -> clean -> load -> analyze loop.",
+      "Clear, explainable code over black-box tooling.",
+    ],
+    stack: ["Python", "pandas", "DuckDB", "pytest"],
+    links: { repo: "https://github.com/Humanberto/duckdb-rides-pipeline" },
+  },
+  {
+    slug: "resume-job-matcher",
+    title: "Resume / Job Matcher",
+    tagline: "Score a resume against a job description - and name the gaps.",
+    year: "2026",
+    role: "Applied ML / NLP",
+    pillars: ["AI/ML", "Python"],
+    status: "live",
+    accent: "gold",
+    summary:
+      "A focused Python tool that scores how well a resume matches a job description and, more usefully, lists which of the job's important keywords are covered and which are missing.",
+    problem:
+      "A single similarity number is useless on its own. The actionable question is: what does this resume already cover, and what should it address?",
+    approach: [
+      "Used TF-IDF cosine similarity (scikit-learn) on purpose - transparent and explainable, no opaque embeddings.",
+      "Ranked the job's terms by importance and split them into covered vs. missing buckets.",
+      "Wrapped it in a CLI and a small Python API, with tests.",
+    ],
+    outcomes: [
+      "An honest, actionable read on fit - the same honesty-first thinking behind this site's AI advocate.",
+      "A clean, tested package others can drop into their own tooling.",
+    ],
+    stack: ["Python", "scikit-learn", "CLI", "pytest"],
+    links: { repo: "https://github.com/Humanberto/resume-job-matcher" },
   },
 ];
 
