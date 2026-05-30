@@ -64,6 +64,8 @@ export interface AdvocateConfig {
 /** The client-safe slice of config (no system prompt / private instructions). */
 export interface AdvocateClientConfig {
   apiPath: string;
+  /** Endpoint that emails a transcript: POST { to, transcriptMarkdown }. */
+  emailPath?: string;
   persona: string;
   suggestedPrompts: string[];
   tools: AdvocateToolFlags;

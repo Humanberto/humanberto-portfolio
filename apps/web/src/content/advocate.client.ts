@@ -4,6 +4,7 @@ import { site } from "@/lib/site";
 /** Client-safe advocate config (no system prompt or private instructions). */
 export const advocateClient: AdvocateClientConfig = {
   apiPath: "/api/advocate",
+  emailPath: "/api/advocate/email",
   ownerName: site.name,
   persona: `${site.name}'s AI advocate`,
   launcherLabel: "Talk to my advocate",

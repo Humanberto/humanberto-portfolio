@@ -16,9 +16,11 @@
     "@humanberto/advocate-agent": "*",
     "@humanberto/ui": "*",
     "@react-three/fiber": "^9.6.1",
+    "@supabase/supabase-js": "^2.106.2",
     "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "resend": "^6.12.4",
     "three": "^0.184.0"
   },
   "devDependencies": {
