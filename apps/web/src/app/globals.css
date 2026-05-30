@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+/* Workspace packages are symlinked into node_modules, which Tailwind ignores by
+ * default. Register their sources so utility classes used inside them generate. */
+@source "../../../../packages/ui/src";
+@source "../../../../packages/advocate-agent/src";
+
+/*
+ * Humanberto design tokens (Tailwind v4 CSS-first theme).
+ * Keep hex values in sync with packages/ui/src/tokens.ts.
+ */
+@theme {
+  /* Backgrounds */
+  --color-ink: #0b0610;
+  --color-surface: #140a24;
+  --color-raised: #1a0a2e;
+  --color-purple-deep: #2a0e45;
+
+  /* Purple accents */
+  --color-purple: #7b3fe4;
+  --color-purple-soft: #a06bf0;
+
+  /* Gold */
+  --color-gold: #c9a227;
+  --color-gold-bright: #e6c260;
+  --color-gold-dust: #f4e4a6;
+
+  /* Text */
+  --color-fg: #f5f1e6;
+  --color-muted: #b7a8c9;
+  --color-faint: #6e5f86;
+
+  /* Lines */
+  --color-line: #2e1f47;
+
+  /* Fonts (faces injected by next/font in layout.tsx) */
+  --font-display: var(--font-display-face), "Fraunces", Georgia, serif;
+  --font-sans: var(--font-body-face), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono-face), ui-monospace, SFMono-Regular, monospace;
+
+  /* Motion */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-line);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-ink);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: color-mix(in srgb, var(--color-gold) 35%, transparent);
+    color: var(--color-fg);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  /* Thin gold scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-ink);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--color-gold) 40%, var(--color-purple-deep));
+    border-radius: 999px;
+    border: 2px solid var(--color-ink);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
