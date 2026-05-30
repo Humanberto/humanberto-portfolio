@@ -12,6 +12,7 @@
     "clean": "rimraf .next .turbo node_modules"
   },
   "dependencies": {
+    "@calcom/embed-react": "^1.5.3",
     "@humanberto/advocate-agent": "*",
     "@humanberto/ui": "*",
     "@react-three/fiber": "^9.6.1",
