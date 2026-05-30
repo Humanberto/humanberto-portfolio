@@ -1,0 +1,28 @@
+import type { AdvocateClientConfig } from "@humanberto/advocate-agent";
+import { site } from "@/lib/site";
+
+/** Client-safe advocate config (no system prompt or private instructions). */
+export const advocateClient: AdvocateClientConfig = {
+  apiPath: "/api/advocate",
+  ownerName: site.name,
+  persona: `${site.name}'s AI advocate`,
+  launcherLabel: "Talk to my advocate",
+  schedulingUrl: process.env.NEXT_PUBLIC_CAL_LINK
+    ? `https://cal.com/${process.env.NEXT_PUBLIC_CAL_LINK}`
+    : site.schedulingUrl,
+  suggestedPrompts: [
+    "I'm hiring for a data / Python role",
+    "I have a project (around $5k) in mind",
+    "Why product design AND code?",
+    "Tell me about VZTR Help",
+  ],
+  tools: {
+    exportPdf: true,
+    emailTranscript: true,
+    scheduleCall: true,
+    captureLead: true,
+  },
+  capabilities: {
+    voice: false,
+  },
+};

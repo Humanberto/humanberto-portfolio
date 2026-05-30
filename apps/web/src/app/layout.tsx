@@ -3,6 +3,7 @@ import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import { Nav } from "@/components/site/nav";
 import { Footer } from "@/components/site/footer";
 import { LivingBackground } from "@/components/living-background";
+import { LauncherGate } from "@/components/site/launcher-gate";
 import "./globals.css";
 
 const display = Fraunces({
@@ -77,6 +78,7 @@ export default function RootLayout({
         <Nav />
         <div className="relative z-10">{children}</div>
         <Footer />
+        <LauncherGate />
       </body>
     </html>
   );

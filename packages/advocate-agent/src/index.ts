@@ -1,9 +1,14 @@
 export type {
   AdvocateConfig,
+  AdvocateClientConfig,
   AdvocateFacts,
   AdvocateFactItem,
   AdvocateToolFlags,
   AdvocateCapabilities,
+  AdvocateIntegrations,
+  CapturedLead,
 } from "./config";
 
-// UI surface (AdvocateChat, ChatLauncher) is added in the agent-package phase.
+export { AdvocateChat, type AdvocateChatProps } from "./client/advocate-chat";
+export { ChatLauncher, type ChatLauncherProps } from "./client/chat-launcher";
+export { buildTranscript } from "./client/transcript";

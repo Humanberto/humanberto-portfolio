@@ -60,3 +60,35 @@ export interface AdvocateConfig {
     launcherLabel?: string;
   };
 }
+
+/** The client-safe slice of config (no system prompt / private instructions). */
+export interface AdvocateClientConfig {
+  apiPath: string;
+  persona: string;
+  suggestedPrompts: string[];
+  tools: AdvocateToolFlags;
+  capabilities: AdvocateCapabilities;
+  schedulingUrl?: string;
+  ownerName: string;
+  launcherLabel?: string;
+}
+
+export interface CapturedLead {
+  name?: string;
+  email?: string;
+  organization?: string;
+  /** "hiring" | "project" | "other" or free text. */
+  intent?: string;
+  /** What they're looking for / the role or project details. */
+  details?: string;
+}
+
+/** Real-world integrations injected by the host app (keeps the package generic). */
+export interface AdvocateIntegrations {
+  captureLead?: (lead: CapturedLead) => Promise<void> | void;
+  sendTranscriptEmail?: (args: {
+    to: string;
+    transcriptMarkdown: string;
+  }) => Promise<{ ok: boolean; error?: string }>;
+  schedulingUrl?: string;
+}
