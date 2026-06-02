@@ -9,7 +9,7 @@ export const site = {
   linkedin: "https://www.linkedin.com/in/robertopleitao",
   github: "https://github.com/humanberto",
   /** Processed headshot in public/ (see scripts/prepare-portrait.py). */
-  photo: "/roberto.webp",
+  photo: "/roberto.webp?v=2",
 } as const;
 
 export const navLinks: { href: string; label: string }[] = [
