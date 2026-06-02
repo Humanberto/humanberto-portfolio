@@ -1,51 +1,14 @@
-"use client";
-
-import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
-
-const LivingScene = dynamic(
-  () => import("./scene").then((m) => m.LivingScene),
-  { ssr: false },
-);
-
-function hasWebGL(): boolean {
-  try {
-    const canvas = document.createElement("canvas");
-    return !!(
-      window.WebGLRenderingContext &&
-      (canvas.getContext("webgl2") || canvas.getContext("webgl"))
-    );
-  } catch {
-    return false;
-  }
-}
-
 /**
- * The signature "living" background: a slow, thick deep-purple liquid with
- * suspended gold dust and organic gold circuit/lightning veins.
- *
- * Falls back to a static gold-dust gradient when the user prefers reduced
- * motion or WebGL is unavailable. Pauses rendering when the tab is hidden.
+ * Static site background — purple/gold gradients + gold dust texture.
+ * The animated WebGL "living" scene is disabled for performance and consistency.
  */
-export function LivingBackground({ intensity = 1 }: { intensity?: number }) {
-  const [live, setLive] = useState(false);
-
-  useEffect(() => {
-    const reduce = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    const force = new URLSearchParams(window.location.search).has("forcebg");
-    if (force || (!reduce && hasWebGL())) setLive(true);
-  }, []);
-
+export function LivingBackground() {
   return (
     <div
       aria-hidden="true"
       className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-ink"
     >
       <StaticBackdrop />
-      {live ? <LivingScene intensity={intensity} /> : null}
-      {/* Readability scrim: deepens edges + top (under nav) so content stays legible. */}
       <div
         className="absolute inset-0"
         style={{
@@ -58,7 +21,6 @@ export function LivingBackground({ intensity = 1 }: { intensity?: number }) {
   );
 }
 
-/** Pure-CSS fallback / load-time backdrop. */
 function StaticBackdrop() {
   return (
     <div

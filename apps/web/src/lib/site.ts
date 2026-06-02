@@ -1,4 +1,4 @@
-export const site = {
+export const defaultSite = {
   name: "Roberto Pocas Leitao",
   shortName: "Humanberto",
   role: "Product Designer & Python Developer",
@@ -11,6 +11,11 @@ export const site = {
   /** Processed headshot in public/ (see scripts/prepare-portrait.py). */
   photo: "/roberto.webp?v=2",
 } as const;
+
+export type SiteConfig = typeof defaultSite;
+
+/** Static defaults for client components and build-time imports. */
+export const site = defaultSite;
 
 export const fitCheckHref = "/chat#fit-check" as const;
 

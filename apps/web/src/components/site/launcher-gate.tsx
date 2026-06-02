@@ -7,6 +7,6 @@ import { advocateClient } from "@/content/advocate.client";
 /** Floating advocate launcher everywhere except the dedicated /chat page. */
 export function LauncherGate() {
   const pathname = usePathname();
-  if (pathname === "/chat") return null;
+  if (pathname === "/chat" || pathname.startsWith("/myoffice")) return null;
   return <ChatLauncher config={advocateClient} />;
 }

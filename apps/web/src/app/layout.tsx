@@ -1,9 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
-import { Nav } from "@/components/site/nav";
-import { Footer } from "@/components/site/footer";
-import { LivingBackground } from "@/components/living-background";
-import { LauncherGate } from "@/components/site/launcher-gate";
 import "./globals.css";
 
 const display = Fraunces({
@@ -55,8 +51,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Roberto Pocas Leitao - Product Designer & Python Developer",
-    description:
-      "Turning messy processes into clean, AI-powered experiences.",
+    description: "Turning messy processes into clean, AI-powered experiences.",
   },
 };
 
@@ -73,13 +68,7 @@ export default function RootLayout({
       lang="en"
       className={`${display.variable} ${body.variable} ${mono.variable}`}
     >
-      <body className="min-h-dvh antialiased">
-        <LivingBackground />
-        <Nav />
-        <div className="relative z-10">{children}</div>
-        <Footer />
-        <LauncherGate />
-      </body>
+      <body className="min-h-dvh antialiased">{children}</body>
     </html>
   );
 }

@@ -16,20 +16,19 @@
     "@calcom/embed-react": "^1.5.3",
     "@humanberto/advocate-agent": "*",
     "@humanberto/ui": "*",
-    "@react-three/fiber": "^9.6.1",
     "@supabase/supabase-js": "^2.106.2",
+    "ai": "^6.0.193",
+    "jose": "^6.0.11",
     "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "resend": "^6.12.4",
-    "three": "^0.184.0"
+    "resend": "^4.5.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^22.10.5",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "@types/three": "^0.184.1",
     "eslint": "^9.18.0",
     "eslint-config-next": "^15.0.0",
     "tailwindcss": "^4.0.0",
