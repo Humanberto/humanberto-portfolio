@@ -25,6 +25,17 @@ export function ProjectCard({
             accentGlow,
           )}
         />
+        {project.coverImage && (
+          <div className="-mx-2 -mt-2 mb-4 overflow-hidden rounded-xl border border-line/60">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={project.coverImage}
+              alt=""
+              className="aspect-[16/10] w-full object-cover"
+              loading="lazy"
+            />
+          </div>
+        )}
         <div className="flex items-center justify-between gap-3">
           <StatusPill status={project.status} />
           <span className="text-xs text-faint">{project.year}</span>

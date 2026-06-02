@@ -7,6 +7,36 @@ export type Pillar =
 
 export type ProjectStatus = "live" | "in-progress" | "prototype" | "case-study";
 
+export interface ProjectImage {
+  id: string;
+  url: string;
+  alt?: string;
+  caption?: string;
+}
+
+export interface ProjectVideo {
+  id: string;
+  /** YouTube, Vimeo, or direct .mp4/.webm URL (e.g. from Supabase Storage). */
+  url: string;
+  caption?: string;
+  posterUrl?: string;
+}
+
+export interface ProjectProcessStep {
+  id: string;
+  title: string;
+  detail: string;
+  imageUrl?: string;
+}
+
+/** Named workflow / phase with ordered steps (shown on the case study page). */
+export interface ProjectProcess {
+  id: string;
+  title: string;
+  summary?: string;
+  steps: ProjectProcessStep[];
+}
+
 export interface Project {
   slug: string;
   title: string;
@@ -30,6 +60,11 @@ export interface Project {
   accent?: "gold" | "purple";
   /** When false, hidden from the public site. Defaults to true. */
   published?: boolean;
+  /** Hero / card thumbnail. */
+  coverImage?: string;
+  images?: ProjectImage[];
+  videos?: ProjectVideo[];
+  processes?: ProjectProcess[];
 }
 
 export const PILLARS: { name: Pillar; blurb: string }[] = [

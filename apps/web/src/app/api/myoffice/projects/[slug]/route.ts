@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAllProjects, saveAllProjects } from "@/lib/projects.server";
+import { parseProjectFields } from "@/lib/projects.parse";
 import { slugifyTitle } from "@/lib/projects.shared";
 import type { AdminProject } from "@/lib/projects.shared";
 
@@ -30,6 +31,8 @@ function parsePatch(raw: unknown, current: AdminProject): AdminProject | null {
     links: { ...current.links, ...(p.links ?? {}) },
     published: p.published ?? current.published,
     featured: p.featured ?? current.featured,
+    accent: p.accent === "purple" ? "purple" : p.accent === "gold" ? "gold" : current.accent,
+    ...parseProjectFields({ ...current, ...p }),
   };
 }
 

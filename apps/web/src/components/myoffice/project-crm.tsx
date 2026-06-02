@@ -11,6 +11,7 @@ import {
   type AdminProject,
 } from "@/lib/projects.shared";
 import type { Pillar } from "@/content/projects";
+import { ProjectRichContent } from "./project-rich-content";
 
 function linesToArray(text: string): string[] {
   return text
@@ -57,7 +58,12 @@ export function ProjectCrm() {
     if (!project) return;
     setIsNew(false);
     setSelectedSlug(slug);
-    setDraft({ ...project });
+    setDraft({
+      ...project,
+      images: project.images ?? [],
+      videos: project.videos ?? [],
+      processes: project.processes ?? [],
+    });
     setStatus("");
   }
 
@@ -521,6 +527,13 @@ export function ProjectCrm() {
                 </label>
               ))}
             </div>
+
+            <ProjectRichContent
+              draft={draft}
+              setDraft={setDraft}
+              projectSlug={(draft.slug.trim() || slugifyTitle(draft.title)).toLowerCase()}
+              onUploadError={(msg) => setStatus(msg)}
+            />
 
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <button

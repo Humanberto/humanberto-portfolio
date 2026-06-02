@@ -3,6 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Button, Container } from "@humanberto/ui";
 import { StatusPill } from "@/components/work/status-pill";
+import { ProjectGallery } from "@/components/work/project-gallery";
+import { ProjectProcessTimeline } from "@/components/work/project-process-timeline";
+import { ProjectVideos } from "@/components/work/project-videos";
 import { getProject, getProjects } from "@/lib/projects.server";
 
 export const dynamic = "force-dynamic";
@@ -64,6 +67,17 @@ export default async function CaseStudy({
 
         <p className="mt-3 text-sm text-faint">{project.role}</p>
 
+        {project.coverImage && (
+          <div className="mt-10 overflow-hidden rounded-2xl border border-line">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={project.coverImage}
+              alt=""
+              className="aspect-[16/9] w-full object-cover"
+            />
+          </div>
+        )}
+
         {externalLinks.length > 0 ? (
           <div className="mt-8 flex flex-wrap gap-3">
             {externalLinks.map((l) => (
@@ -90,6 +104,18 @@ export default async function CaseStudy({
         <Section title="The problem">
           <p>{project.problem}</p>
         </Section>
+
+        {project.images && project.images.length > 0 && (
+          <ProjectGallery images={project.images} />
+        )}
+
+        {project.videos && project.videos.length > 0 && (
+          <ProjectVideos videos={project.videos} />
+        )}
+
+        {project.processes && project.processes.length > 0 && (
+          <ProjectProcessTimeline processes={project.processes} />
+        )}
 
         <Section title="Approach">
           <ul className="space-y-3">

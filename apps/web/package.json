@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "clean": "rimraf .next .turbo node_modules"
+    "clean": "rimraf .next .turbo node_modules",
+    "setup:supabase": "node scripts/setup-supabase.mjs"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.80",

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAllProjects, saveAllProjects } from "@/lib/projects.server";
+import { parseProjectFields } from "@/lib/projects.parse";
 import {
   emptyProject,
   slugifyTitle,
@@ -36,6 +37,7 @@ function parseProject(raw: unknown): AdminProject | null {
     featured: Boolean(p.featured),
     published: p.published !== false,
     accent: p.accent === "purple" ? "purple" : "gold",
+    ...parseProjectFields(p),
   };
 }
 

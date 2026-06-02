@@ -1,0 +1,17 @@
+# Humanberto portfolio — remote Supabase only (no local Docker required).
+project_id = "humanberto-portfolio"
+
+[api]
+enabled = true
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+major_version = 15
+
+[db.migrations]
+enabled = true
+
+[db.seed]
+enabled = false

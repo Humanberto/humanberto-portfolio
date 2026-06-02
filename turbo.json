@@ -1,6 +1,23 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
+  "globalEnv": [
+    "GOOGLE_GENERATIVE_AI_API_KEY",
+    "ADVOCATE_GOOGLE_MODEL",
+    "AI_GATEWAY_API_KEY",
+    "ADVOCATE_MODEL",
+    "ADMIN_PASSWORD_HASH",
+    "ADMIN_PASSWORD",
+    "ADMIN_SESSION_SECRET",
+    "ADMIN_ENCRYPTION_KEY",
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "RESEND_API_KEY",
+    "ADVOCATE_FROM_EMAIL",
+    "ADVOCATE_NOTIFY_EMAIL",
+    "NEXT_PUBLIC_SITE_URL",
+    "NEXT_PUBLIC_CAL_LINK"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

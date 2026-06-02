@@ -10,7 +10,10 @@ import {
 export async function POST(req: Request) {
   if (!isAdminConfigured()) {
     return NextResponse.json(
-      { error: "Admin auth is not configured on this server." },
+      {
+        error:
+          "Admin auth is not configured on this server. Set ADMIN_PASSWORD_HASH and ADMIN_SESSION_SECRET in Vercel, then redeploy.",
+      },
       { status: 503 },
     );
   }
