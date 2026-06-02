@@ -9,6 +9,7 @@ import {
   SectionHeading,
 } from "@humanberto/ui";
 import { site } from "@/lib/site";
+import { ProfilePortrait } from "@/components/profile-portrait";
 
 export const metadata: Metadata = {
   title: "About",
@@ -70,10 +71,18 @@ export default function AboutPage() {
     <div className="pt-32">
       <Container className="max-w-3xl">
         <Badge>About</Badge>
-        <h1 className="mt-6 font-display text-4xl font-light leading-tight sm:text-5xl">
-          A designer who learned the work by{" "}
-          <GradientText>doing the work</GradientText>.
-        </h1>
+        <div className="mt-6 flex flex-col gap-8 sm:flex-row sm:items-start sm:gap-10">
+          <ProfilePortrait name={site.name} src={site.photo} size="lg" />
+          <div className="min-w-0">
+            <h1 className="font-display text-4xl font-light leading-tight sm:text-5xl">
+              A designer who learned the work by{" "}
+              <GradientText>doing the work</GradientText>.
+            </h1>
+            <p className="mt-4 text-sm text-faint">
+              {site.name} · {site.location}
+            </p>
+          </div>
+        </div>
         <div className="mt-8 space-y-5 text-lg leading-relaxed text-muted">
           <p>
             I&apos;m {site.name}, based in {site.location}. My path isn&apos;t a

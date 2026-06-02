@@ -80,6 +80,7 @@ export interface AdvocateClientConfig {
   capabilities: AdvocateCapabilities;
   schedulingUrl?: string;
   ownerName: string;
+  ownerPhoto?: string;
   launcherLabel?: string;
 }
 

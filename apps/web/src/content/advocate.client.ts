@@ -8,6 +8,7 @@ export const advocateClient: AdvocateClientConfig = {
   emailPath: "/api/advocate/email",
   analyzePath: "/api/advocate/analyze",
   ownerName: site.name,
+  ownerPhoto: site.photo,
   persona: `${site.name}'s AI advocate`,
   launcherLabel: "Talk to my advocate",
   schedulingUrl: getSchedulingUrl(),

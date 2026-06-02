@@ -8,6 +8,8 @@ export const site = {
   location: "San Diego, CA",
   linkedin: "https://www.linkedin.com/in/robertopleitao",
   github: "https://github.com/humanberto",
+  /** Drop your headshot at apps/web/public/roberto.jpg (square, 800px+). */
+  photo: "/roberto.jpg",
 } as const;
 
 export const navLinks: { href: string; label: string }[] = [

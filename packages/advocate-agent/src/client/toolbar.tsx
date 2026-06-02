@@ -5,6 +5,7 @@ import type { UIMessage } from "ai";
 import type { AdvocateClientConfig } from "../config";
 import { buildTranscript } from "./transcript";
 import { exportTranscriptPdf } from "./pdf";
+import { OwnerAvatar } from "./owner-avatar";
 
 export interface AdvocateToolbarProps {
   config: AdvocateClientConfig;
@@ -65,10 +66,13 @@ export function AdvocateToolbar({ config, messages }: AdvocateToolbarProps) {
   return (
     <div className="relative flex items-center justify-between gap-3 border-b border-line bg-ink/70 px-4 py-3 sm:px-6">
       <div className="flex items-center gap-2.5">
-        <span className="relative flex h-2.5 w-2.5">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold-bright opacity-60" />
-          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-gold" />
-        </span>
+        <div className="relative">
+          <OwnerAvatar name={config.ownerName} photo={config.ownerPhoto} />
+          <span className="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold-bright opacity-60" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full border border-ink bg-gold" />
+          </span>
+        </div>
         <div className="leading-tight">
           <p className="text-sm font-medium text-fg">
             {config.ownerName.split(" ")[0]}&apos;s AI Advocate
