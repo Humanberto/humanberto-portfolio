@@ -8,10 +8,14 @@ import {
   SectionHeading,
 } from "@humanberto/ui";
 import { ProjectCard } from "@/components/work/project-card";
-import { PILLARS, featuredProjects } from "@/content/projects";
+import { PILLARS } from "@/content/projects";
+import { getFeaturedProjects } from "@/lib/projects.server";
 import { fitCheckHref, site } from "@/lib/site";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const featuredProjects = await getFeaturedProjects();
   return (
     <>
       {/* Hero */}

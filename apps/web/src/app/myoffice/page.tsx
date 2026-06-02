@@ -2,13 +2,16 @@ import Link from "next/link";
 import { isAdminConfigured } from "@/lib/admin/auth";
 import { listContentKeys } from "@/lib/admin/content";
 import { listLlmProviders } from "@/lib/admin/llm-providers";
+import { getAllProjects } from "@/lib/projects.server";
 
 export default async function MyOfficeHome() {
-  const [providers, contentKeys] = await Promise.all([
+  const [providers, contentKeys, projects] = await Promise.all([
     listLlmProviders(),
     listContentKeys(),
+    getAllProjects(),
   ]);
   const configured = isAdminConfigured();
+  const visible = projects.filter((p) => p.published).length;
 
   return (
     <div className="space-y-8">
@@ -18,10 +21,16 @@ export default async function MyOfficeHome() {
           Hidden admin at <code className="text-white/80">/myoffice</code>. Nothing on the public
           site links here.
         </p>
-        <dl className="mt-6 grid gap-4 sm:grid-cols-3">
+        <dl className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-xl border border-white/10 p-4">
             <dt className="text-xs uppercase tracking-wide text-white/50">Auth</dt>
             <dd className="mt-1 text-lg">{configured ? "Configured" : "Missing env"}</dd>
+          </div>
+          <div className="rounded-xl border border-white/10 p-4">
+            <dt className="text-xs uppercase tracking-wide text-white/50">Projects</dt>
+            <dd className="mt-1 text-lg">
+              {visible} live / {projects.length} total
+            </dd>
           </div>
           <div className="rounded-xl border border-white/10 p-4">
             <dt className="text-xs uppercase tracking-wide text-white/50">LLM providers</dt>
@@ -34,7 +43,17 @@ export default async function MyOfficeHome() {
         </dl>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2">
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <Link
+          href="/myoffice/projects"
+          className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 hover:border-white/20"
+        >
+          <h3 className="font-display text-xl">Projects CRM</h3>
+          <p className="mt-2 text-sm text-white/60">
+            Show, hide, edit, and add portfolio work. Reorder with the arrows; toggle featured for
+            the homepage.
+          </p>
+        </Link>
         <Link
           href="/myoffice/llm"
           className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 hover:border-white/20"

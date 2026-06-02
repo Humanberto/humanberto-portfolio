@@ -28,6 +28,8 @@ export interface Project {
   };
   featured?: boolean;
   accent?: "gold" | "purple";
+  /** When false, hidden from the public site. Defaults to true. */
+  published?: boolean;
 }
 
 export const PILLARS: { name: Pillar; blurb: string }[] = [
@@ -268,6 +270,9 @@ export const projects: Project[] = [
     links: { repo: "https://github.com/Humanberto/resume-job-matcher" },
   },
 ];
+
+/** Seed data shipped in the repo; overridden by back-office CRM when saved. */
+export const defaultProjects = projects;
 
 export function getProject(slug: string): Project | undefined {
   return projects.find((p) => p.slug === slug);
