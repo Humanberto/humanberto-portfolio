@@ -157,19 +157,34 @@ function MessagePart({
   }
 
   if (part.type === "tool-scheduleCall" && part.state === "output-available") {
-    const output = (part.output ?? {}) as { schedulingUrl?: string | null };
+    const output = (part.output ?? {}) as {
+      schedulingUrl?: string | null;
+      email?: string | null;
+    };
     const url = output.schedulingUrl ?? schedulingUrl;
-    if (!url) return null;
-    return (
-      <a
-        href={url}
-        target="_blank"
-        rel="noreferrer"
-        className="mt-2 inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-gold-bright to-gold px-4 py-2 text-sm font-medium text-ink"
-      >
-        Book an intro call -&gt;
-      </a>
-    );
+    if (url) {
+      return (
+        <a
+          href={url}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-2 inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-gold-bright to-gold px-4 py-2 text-sm font-medium text-ink"
+        >
+          Book an intro call -&gt;
+        </a>
+      );
+    }
+    if (output.email) {
+      return (
+        <a
+          href={`mailto:${output.email}?subject=Intro%20call%20request`}
+          className="mt-2 inline-flex items-center gap-2 rounded-full border border-line bg-surface/60 px-4 py-2 text-sm text-fg"
+        >
+          Email to schedule -&gt;
+        </a>
+      );
+    }
+    return null;
   }
 
   // captureLead and other tool parts render silently.

@@ -8,8 +8,6 @@ export const site = {
   location: "San Diego, CA",
   linkedin: "https://www.linkedin.com/in/robertopleitao",
   github: "https://github.com/humanberto",
-  // Replace with your real Cal.com handle/event when wiring scheduling.
-  schedulingUrl: "https://cal.com/humanberto/intro",
 } as const;
 
 export const navLinks: { href: string; label: string }[] = [

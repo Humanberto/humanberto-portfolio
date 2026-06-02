@@ -1,4 +1,5 @@
 import type { AdvocateClientConfig } from "@humanberto/advocate-agent";
+import { getSchedulingUrl } from "@/lib/scheduling";
 import { site } from "@/lib/site";
 
 /** Client-safe advocate config (no system prompt or private instructions). */
@@ -9,9 +10,7 @@ export const advocateClient: AdvocateClientConfig = {
   ownerName: site.name,
   persona: `${site.name}'s AI advocate`,
   launcherLabel: "Talk to my advocate",
-  schedulingUrl: process.env.NEXT_PUBLIC_CAL_LINK
-    ? `https://cal.com/${process.env.NEXT_PUBLIC_CAL_LINK}`
-    : site.schedulingUrl,
+  schedulingUrl: getSchedulingUrl(),
   suggestedPrompts: [
     "I'm hiring for a data / Python role",
     "I have a project (around $5k) in mind",

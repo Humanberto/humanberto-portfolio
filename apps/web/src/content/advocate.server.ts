@@ -1,6 +1,7 @@
 import type { LanguageModel } from "ai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import type { AdvocateConfig } from "@humanberto/advocate-agent";
+import { getSchedulingUrl } from "@/lib/scheduling";
 import { site } from "@/lib/site";
 
 /**
@@ -161,7 +162,7 @@ Brazilian Jiu-Jitsu brown belt - earned by showing up and improving by inches).
       email: site.email,
       phone: site.phone,
       linkedin: site.linkedin,
-      schedulingUrl: site.schedulingUrl,
+      schedulingUrl: getSchedulingUrl(),
     },
   },
 };

@@ -2,9 +2,11 @@
 
 import { useEffect, useState, type ComponentType, type CSSProperties } from "react";
 import { Button } from "@humanberto/ui";
+import { getCalEmbedLink, getSchedulingUrl } from "@/lib/scheduling";
 import { site } from "@/lib/site";
 
-const CAL_LINK = process.env.NEXT_PUBLIC_CAL_LINK;
+const CAL_LINK = getCalEmbedLink();
+const SCHEDULING_URL = getSchedulingUrl();
 
 type CalProps = {
   calLink: string;
@@ -13,9 +15,8 @@ type CalProps = {
 };
 
 /**
- * Inline Cal.com booking. Renders the real embed once NEXT_PUBLIC_CAL_LINK is
- * set (e.g. "humanberto/intro"); until then it shows a graceful fallback so the
- * deployed site never displays a broken iframe.
+ * Inline Cal.com booking. Renders the embed when NEXT_PUBLIC_CAL_LINK is set;
+ * otherwise shows email/contact fallback (never a broken scheduling link).
  */
 export function CalBooking() {
   const [Cal, setCal] = useState<ComponentType<CalProps> | null>(null);
@@ -54,16 +55,19 @@ export function CalBooking() {
     <div className="flex min-h-[280px] flex-col items-center justify-center rounded-2xl border border-line bg-surface/50 p-10 text-center">
       <h3 className="font-display text-2xl font-light">Book a 20-minute intro</h3>
       <p className="mt-3 max-w-sm text-sm text-muted">
-        Live scheduling is wired up and turns on the moment the calendar is
-        connected. In the meantime, email is the fastest path - I reply quickly.
+        {SCHEDULING_URL
+          ? "Loading the calendar…"
+          : "Email is the fastest way to grab time on my calendar while live scheduling is being connected."}
       </p>
       <div className="mt-6 flex flex-wrap justify-center gap-3">
-        <a href={`mailto:${site.email}`}>
-          <Button>Email me</Button>
+        <a href={`mailto:${site.email}?subject=Intro%20call%20request`}>
+          <Button>Email me to schedule</Button>
         </a>
-        <a href={site.schedulingUrl} target="_blank" rel="noreferrer">
-          <Button variant="outline">Open scheduling</Button>
-        </a>
+        {SCHEDULING_URL ? (
+          <a href={SCHEDULING_URL} target="_blank" rel="noreferrer">
+            <Button variant="outline">Open Cal.com</Button>
+          </a>
+        ) : null}
       </div>
     </div>
   );
