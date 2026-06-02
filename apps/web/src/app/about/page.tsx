@@ -8,7 +8,7 @@ import {
   GradientText,
   SectionHeading,
 } from "@humanberto/ui";
-import { site } from "@/lib/site";
+import { site, fitCheckHref } from "@/lib/site";
 import { ProfilePortrait } from "@/components/profile-portrait";
 
 export const metadata: Metadata = {
@@ -160,13 +160,20 @@ export default function AboutPage() {
               The fastest way to know if I&apos;m a fit
             </h2>
             <p className="mx-auto mt-3 max-w-md text-muted">
-              Tell my AI advocate about the role or project. It&apos;ll give you
-              an honest read - strengths, transferable skills, and the gaps
-              I&apos;d be closing.
+              Upload a job description for an instant 0–10 score, or tell my AI
+              advocate about the role. Either way you get an honest read —
+              strengths, transferable skills, and the gaps I&apos;d be closing.
             </p>
-            <Link href="/chat" className="mt-6 inline-block">
-              <Button size="lg">Talk to my advocate</Button>
-            </Link>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <Link href={fitCheckHref}>
+                <Button size="lg">Score my fit</Button>
+              </Link>
+              <Link href="/chat">
+                <Button size="lg" variant="outline">
+                  Talk to my advocate
+                </Button>
+              </Link>
+            </div>
           </Card>
         </Container>
       </section>

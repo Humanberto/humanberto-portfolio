@@ -9,7 +9,7 @@ import {
   SectionHeading,
 } from "@humanberto/ui";
 import { CalBooking } from "@/components/contact/cal-booking";
-import { site } from "@/lib/site";
+import { fitCheckHref, site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -62,12 +62,17 @@ export default function ContactPage() {
             Prefer to ask questions first?
           </h2>
           <p className="mx-auto mt-3 max-w-md text-sm text-muted">
-            My AI advocate can answer most things on the spot - and book the call
-            for you when you&apos;re ready.
+            Not ready to book yet? Upload a job description for an honest fit
+            score, or chat with my AI advocate first.
           </p>
-          <Link href="/chat" className="mt-6 inline-block">
-            <Button>Talk to my advocate</Button>
-          </Link>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Link href={fitCheckHref}>
+              <Button>Score my fit</Button>
+            </Link>
+            <Link href="/chat">
+              <Button variant="outline">Talk to my advocate</Button>
+            </Link>
+          </div>
         </Card>
       </Container>
     </div>

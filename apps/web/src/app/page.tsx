@@ -9,7 +9,7 @@ import {
 } from "@humanberto/ui";
 import { ProjectCard } from "@/components/work/project-card";
 import { PILLARS, featuredProjects } from "@/content/projects";
-import { site } from "@/lib/site";
+import { fitCheckHref, site } from "@/lib/site";
 
 export default function Home() {
   return (
@@ -32,8 +32,13 @@ export default function Home() {
               <Link href="/chat">
                 <Button size="lg">Talk to my AI advocate</Button>
               </Link>
-              <Link href="/work">
+              <Link href={fitCheckHref}>
                 <Button size="lg" variant="outline">
+                  Score my fit
+                </Button>
+              </Link>
+              <Link href="/work">
+                <Button size="lg" variant="ghost">
                   See the work
                 </Button>
               </Link>
@@ -72,15 +77,29 @@ export default function Home() {
               </Card>
             ))}
             <Card className="flex flex-col justify-between bg-purple/10 p-6">
-              <h3 className="font-display text-xl font-light">
-                Not sure which box I fit?
-              </h3>
-              <Link
-                href="/chat"
-                className="mt-3 inline-flex items-center gap-1 text-sm text-gold-bright"
-              >
-                Ask my AI advocate -&gt;
-              </Link>
+              <div>
+                <h3 className="font-display text-xl font-light">
+                  Not sure which box I fit?
+                </h3>
+                <p className="mt-2 text-sm text-muted">
+                  Filter by craft below, or upload a job description for an
+                  honest 0–10 fit score.
+                </p>
+              </div>
+              <div className="mt-4 flex flex-col gap-2">
+                <Link
+                  href={fitCheckHref}
+                  className="inline-flex items-center gap-1 text-sm font-medium text-gold-bright"
+                >
+                  Score my fit -&gt;
+                </Link>
+                <Link
+                  href="/chat"
+                  className="inline-flex items-center gap-1 text-sm text-muted hover:text-fg"
+                >
+                  Ask my AI advocate -&gt;
+                </Link>
+              </div>
             </Card>
           </div>
         </Container>
@@ -122,12 +141,17 @@ export default function Home() {
               <p className="mt-5 text-muted">
                 It answers honestly - never inventing experience - and helps you
                 see where I&apos;d add value, even where I&apos;m still growing.
-                Save the chat as a PDF, get it by email, or book an intro call
-                right from the conversation.
+                Save the chat as a PDF, get it by email, book an intro call, or
+                upload a job description for an instant 0–10 fit score.
               </p>
               <div className="mt-8 flex flex-wrap gap-4">
                 <Link href="/chat">
                   <Button size="lg">Start the conversation</Button>
+                </Link>
+                <Link href={fitCheckHref}>
+                  <Button size="lg" variant="outline">
+                    Score my fit
+                  </Button>
                 </Link>
                 <Link href="/contact">
                   <Button size="lg" variant="ghost">

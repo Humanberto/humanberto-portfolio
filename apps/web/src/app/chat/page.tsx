@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
-import { Badge, Container, GradientText } from "@humanberto/ui";
+import Link from "next/link";
 import { AdvocateChat, FitAnalyzer } from "@humanberto/advocate-agent";
+import { Badge, Button, Container, GradientText } from "@humanberto/ui";
 import { advocateClient } from "@/content/advocate.client";
+import { fitCheckHref } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "AI Advocate",
@@ -23,6 +25,13 @@ export default function ChatPage() {
             role or project. Straight answers - I&apos;ll never overstate the
             truth.
           </p>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Link href={fitCheckHref}>
+              <Button size="sm" variant="outline">
+                Score my fit (0–10)
+              </Button>
+            </Link>
+          </div>
         </div>
 
         <div
@@ -32,7 +41,10 @@ export default function ChatPage() {
           <AdvocateChat config={advocateClient} />
         </div>
 
-        <div className="mt-12 rounded-3xl border border-line bg-ink/50 p-6 backdrop-blur-xl sm:p-8">
+        <div
+          id="fit-check"
+          className="mt-12 scroll-mt-28 rounded-3xl border border-line bg-ink/50 p-6 backdrop-blur-xl sm:p-8"
+        >
           <div className="text-center">
             <Badge>Instant fit check</Badge>
             <h2 className="mt-4 font-display text-2xl font-light sm:text-3xl">

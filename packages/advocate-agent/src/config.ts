@@ -81,6 +81,8 @@ export interface AdvocateClientConfig {
   schedulingUrl?: string;
   ownerName: string;
   ownerPhoto?: string;
+  /** Deep link to the fit-score analyzer (e.g. /chat#fit-check). */
+  fitCheckHref?: string;
   launcherLabel?: string;
 }
 

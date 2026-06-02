@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
-import { SectionHeading } from "@humanberto/ui";
+import { Button, SectionHeading } from "@humanberto/ui";
 import { ProjectCard } from "@/components/work/project-card";
 import { PILLARS, type Pillar, type Project } from "@/content/projects";
 import { PILLAR_COLORS, hexToRgba } from "@/lib/pillars";
+import { fitCheckHref } from "@/lib/site";
 
 function overlapCount(project: Project, selected: Pillar[]) {
   return project.pillars.filter((p) => selected.includes(p)).length;
@@ -150,6 +152,19 @@ export function WorkExplorer({ projects }: { projects: Project[] }) {
           No projects match that exact combination yet.
         </p>
       )}
+
+      <div className="mt-14 rounded-2xl border border-gold/25 bg-gold/5 p-6 text-center sm:p-8">
+        <p className="font-display text-xl font-light text-fg">
+          Have a specific role or project in mind?
+        </p>
+        <p className="mx-auto mt-2 max-w-lg text-sm text-muted">
+          Upload the job description or scope and get an honest 0–10 fit score
+          — strengths, transferable skills, and gaps included.
+        </p>
+        <Link href={fitCheckHref} className="mt-5 inline-block">
+          <Button>Score my fit</Button>
+        </Link>
+      </div>
     </>
   );
 }

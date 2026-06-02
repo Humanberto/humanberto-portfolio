@@ -12,9 +12,12 @@ export const site = {
   photo: "/roberto.webp?v=2",
 } as const;
 
+export const fitCheckHref = "/chat#fit-check" as const;
+
 export const navLinks: { href: string; label: string }[] = [
   { href: "/work", label: "Work" },
   { href: "/about", label: "About" },
   { href: "/chat", label: "AI Advocate" },
+  { href: fitCheckHref, label: "Score my fit" },
   { href: "/contact", label: "Contact" },
 ];

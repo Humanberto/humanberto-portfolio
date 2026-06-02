@@ -114,6 +114,14 @@ function EmptyState({
           </button>
         ))}
       </div>
+      {config.fitCheckHref ? (
+        <a
+          href={config.fitCheckHref}
+          className="text-sm text-muted underline-offset-4 hover:text-gold-bright hover:underline"
+        >
+          Or upload a job description for a 0–10 fit score →
+        </a>
+      ) : null}
     </div>
   );
 }

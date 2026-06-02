@@ -1,6 +1,6 @@
 import type { AdvocateClientConfig } from "@humanberto/advocate-agent";
 import { getSchedulingUrl } from "@/lib/scheduling";
-import { site } from "@/lib/site";
+import { fitCheckHref, site } from "@/lib/site";
 
 /** Client-safe advocate config (no system prompt or private instructions). */
 export const advocateClient: AdvocateClientConfig = {
@@ -18,6 +18,7 @@ export const advocateClient: AdvocateClientConfig = {
     "Why product design AND code?",
     "Tell me about VZTR Help",
   ],
+  fitCheckHref,
   tools: {
     exportPdf: true,
     emailTranscript: true,

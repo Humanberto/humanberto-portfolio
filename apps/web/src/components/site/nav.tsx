@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Button, cn, Container } from "@humanberto/ui";
-import { navLinks } from "@/lib/site";
+import { fitCheckHref, navLinks } from "@/lib/site";
 
 export function Nav() {
   const pathname = usePathname();
@@ -46,7 +46,12 @@ export function Nav() {
             })}
           </nav>
 
-          <div className="hidden md:block">
+          <div className="hidden items-center gap-2 md:flex">
+            <Link href={fitCheckHref}>
+              <Button size="sm" variant="outline">
+                Score my fit
+              </Button>
+            </Link>
             <Link href="/chat">
               <Button size="sm">Talk to my advocate</Button>
             </Link>
@@ -97,6 +102,11 @@ export function Nav() {
                 {link.label}
               </Link>
             ))}
+            <Link href={fitCheckHref} onClick={() => setOpen(false)}>
+              <Button variant="outline" className="mt-2 w-full">
+                Score my fit
+              </Button>
+            </Link>
             <Link href="/chat" onClick={() => setOpen(false)} className="mt-2">
               <Button className="w-full">Talk to my advocate</Button>
             </Link>
