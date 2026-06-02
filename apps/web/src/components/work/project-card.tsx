@@ -1,9 +1,16 @@
 import Link from "next/link";
 import { Card, cn } from "@humanberto/ui";
-import type { Project } from "@/content/projects";
+import type { Pillar, Project } from "@/content/projects";
+import { PILLAR_COLORS, hexToRgba } from "@/lib/pillars";
 import { StatusPill } from "./status-pill";
 
-export function ProjectCard({ project }: { project: Project }) {
+export function ProjectCard({
+  project,
+  selected = [],
+}: {
+  project: Project;
+  selected?: Pillar[];
+}) {
   const accentGlow =
     project.accent === "purple"
       ? "from-purple/25"
@@ -33,14 +40,24 @@ export function ProjectCard({ project }: { project: Project }) {
         </p>
 
         <div className="mt-auto flex flex-wrap gap-2 pt-6">
-          {project.pillars.slice(0, 3).map((p) => (
-            <span
-              key={p}
-              className="rounded-full border border-line px-2.5 py-1 text-[0.7rem] text-muted"
-            >
-              {p}
-            </span>
-          ))}
+          {project.pillars.map((p) => {
+            const color = PILLAR_COLORS[p];
+            const active = selected.includes(p);
+            return (
+              <span
+                key={p}
+                className="rounded-full border px-2.5 py-1 text-[0.7rem] font-medium transition-colors"
+                style={{
+                  color,
+                  borderColor: hexToRgba(color, active ? 0.7 : 0.26),
+                  backgroundColor: hexToRgba(color, active ? 0.18 : 0.07),
+                  opacity: selected.length > 0 && !active ? 0.55 : 1,
+                }}
+              >
+                {p}
+              </span>
+            );
+          })}
         </div>
 
         <span className="mt-5 inline-flex items-center gap-1 text-sm text-gold-bright">
