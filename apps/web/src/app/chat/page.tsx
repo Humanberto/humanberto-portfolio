@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Badge, Container, GradientText } from "@humanberto/ui";
-import { AdvocateChat } from "@humanberto/advocate-agent";
+import { AdvocateChat, FitAnalyzer } from "@humanberto/advocate-agent";
 import { advocateClient } from "@/content/advocate.client";
 
 export const metadata: Metadata = {
@@ -25,8 +25,28 @@ export default function ChatPage() {
           </p>
         </div>
 
-        <div className="mt-10 h-[68vh] min-h-[520px] overflow-hidden rounded-3xl border border-line bg-ink/50 backdrop-blur-xl">
+        <div
+          id="advocate-chat"
+          className="mt-10 h-[68vh] min-h-[520px] scroll-mt-28 overflow-hidden rounded-3xl border border-line bg-ink/50 backdrop-blur-xl"
+        >
           <AdvocateChat config={advocateClient} />
+        </div>
+
+        <div className="mt-12 rounded-3xl border border-line bg-ink/50 p-6 backdrop-blur-xl sm:p-8">
+          <div className="text-center">
+            <Badge>Instant fit check</Badge>
+            <h2 className="mt-4 font-display text-2xl font-light sm:text-3xl">
+              Does Roberto <GradientText>check your boxes?</GradientText>
+            </h2>
+            <p className="mx-auto mt-3 max-w-lg text-sm text-muted">
+              Upload your job description or project scope, paste a link, or drop
+              in the text. My advocate scores the fit 0&ndash;10 against my real
+              background &ndash; strengths, transferable skills, and honest gaps.
+            </p>
+          </div>
+          <div className="mx-auto mt-6 max-w-xl">
+            <FitAnalyzer config={advocateClient} />
+          </div>
         </div>
       </Container>
     </div>

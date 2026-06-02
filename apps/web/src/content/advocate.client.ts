@@ -5,6 +5,7 @@ import { site } from "@/lib/site";
 export const advocateClient: AdvocateClientConfig = {
   apiPath: "/api/advocate",
   emailPath: "/api/advocate/email",
+  analyzePath: "/api/advocate/analyze",
   ownerName: site.name,
   persona: `${site.name}'s AI advocate`,
   launcherLabel: "Talk to my advocate",

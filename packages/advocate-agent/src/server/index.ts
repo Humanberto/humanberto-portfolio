@@ -11,6 +11,10 @@ import type { AdvocateConfig, AdvocateIntegrations } from "../config";
 import { buildSystemPrompt } from "../prompt";
 
 export { buildSystemPrompt };
+export {
+  createFitAnalyzerHandler,
+  type CreateFitAnalyzerArgs,
+} from "./analyze";
 
 export interface CreateAdvocateHandlerArgs {
   config: AdvocateConfig;

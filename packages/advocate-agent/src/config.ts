@@ -72,6 +72,8 @@ export interface AdvocateClientConfig {
   apiPath: string;
   /** Endpoint that emails a transcript: POST { to, transcriptMarkdown }. */
   emailPath?: string;
+  /** Endpoint that scores a job description / scope against the facts. */
+  analyzePath?: string;
   persona: string;
   suggestedPrompts: string[];
   tools: AdvocateToolFlags;
@@ -79,6 +81,46 @@ export interface AdvocateClientConfig {
   schedulingUrl?: string;
   ownerName: string;
   launcherLabel?: string;
+}
+
+/** One matched requirement with the verified evidence behind it. */
+export interface FitMatchItem {
+  requirement: string;
+  evidence: string;
+}
+
+/** One honest gap with a constructive, truthful note. */
+export interface FitGapItem {
+  requirement: string;
+  note: string;
+}
+
+/**
+ * Structured, honesty-first analysis of an uploaded job description / scope
+ * against the represented person's verified facts. Shared by the analyzer
+ * server handler and the result UI.
+ */
+export interface FitAnalysis {
+  /** What the document is: "job description", "project scope", "RFP", etc. */
+  documentKind: string;
+  /** Role title or project name, if stated. */
+  roleTitle?: string | null;
+  /** Overall honest fit, 0-10 (never inflated). */
+  score: number;
+  /** One-line honest headline. */
+  verdict: string;
+  /** A short, truthful read of the overall fit. */
+  summary: string;
+  /** Requirements clearly met, each backed by a verified fact. */
+  strengths: FitMatchItem[];
+  /** Partial / genuinely transferable matches. */
+  transferable: FitMatchItem[];
+  /** Honest gaps plus how they'd realistically be closed. */
+  gaps: FitGapItem[];
+  /** Concise closing recommendation and suggested next step. */
+  recommendation: string;
+  /** Original file name, if one was uploaded. */
+  fileName?: string;
 }
 
 export interface CapturedLead {
