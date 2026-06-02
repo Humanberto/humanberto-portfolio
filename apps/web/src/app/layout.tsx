@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
+import { DesignSystemStyles } from "@/components/theme/design-system-styles";
+import { getGlobalDesignSystem } from "@/lib/design-system.server";
 import "./globals.css";
 
 const display = Fraunces({
@@ -20,7 +22,8 @@ const mono = JetBrains_Mono({
   display: "swap",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://humanberto.com";
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://humanberto.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -60,15 +63,20 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const designSystem = await getGlobalDesignSystem();
+
   return (
     <html
       lang="en"
       className={`${display.variable} ${body.variable} ${mono.variable}`}
     >
-      <body className="min-h-dvh antialiased">{children}</body>
+      <body className="min-h-dvh antialiased">
+        <DesignSystemStyles system={designSystem} />
+        {children}
+      </body>
     </html>
   );
 }

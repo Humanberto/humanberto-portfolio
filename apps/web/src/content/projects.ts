@@ -1,3 +1,5 @@
+import type { ProjectDesignBinding } from "@humanberto/ui";
+
 export type Pillar =
   | "Product Design"
   | "UX/UI Design"
@@ -65,6 +67,8 @@ export interface Project {
   images?: ProjectImage[];
   videos?: ProjectVideo[];
   processes?: ProjectProcess[];
+  /** inherit = site design system; custom = project-specific overrides */
+  designSystem?: ProjectDesignBinding;
 }
 
 export const PILLARS: { name: Pillar; blurb: string }[] = [

@@ -1,4 +1,5 @@
 import type { AdminProject } from "@/lib/projects.shared";
+import { sanitizeProjectDesignBinding } from "@humanberto/ui";
 import {
   sanitizeImages,
   sanitizeProcesses,
@@ -11,11 +12,13 @@ export function parseProjectFields(p: Partial<AdminProject>): Pick<
   | "images"
   | "videos"
   | "processes"
+  | "designSystem"
 > {
   return {
     coverImage: p.coverImage?.trim() || undefined,
     images: sanitizeImages(p.images),
     videos: sanitizeVideos(p.videos),
     processes: sanitizeProcesses(p.processes),
+    designSystem: sanitizeProjectDesignBinding(p.designSystem),
   };
 }

@@ -12,6 +12,8 @@ import {
 } from "@/lib/projects.shared";
 import type { Pillar } from "@/content/projects";
 import { ProjectRichContent } from "./project-rich-content";
+import { ProjectDesignSystemFields } from "./design-system-editor";
+import type { DesignSystem } from "@humanberto/ui";
 
 function linesToArray(text: string): string[] {
   return text
@@ -35,12 +37,21 @@ export function ProjectCrm() {
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(true);
   const [isNew, setIsNew] = useState(false);
+  const [globalDesign, setGlobalDesign] = useState<DesignSystem | null>(null);
 
   const refresh = useCallback(async () => {
-    const res = await fetch("/api/myoffice/projects");
-    if (!res.ok) return;
-    const data = (await res.json()) as { projects: AdminProject[] };
-    setProjects(data.projects);
+    const [projectsRes, designRes] = await Promise.all([
+      fetch("/api/myoffice/projects"),
+      fetch("/api/myoffice/design"),
+    ]);
+    if (projectsRes.ok) {
+      const data = (await projectsRes.json()) as { projects: AdminProject[] };
+      setProjects(data.projects);
+    }
+    if (designRes.ok) {
+      const data = (await designRes.json()) as { system: DesignSystem };
+      setGlobalDesign(data.system);
+    }
     setLoading(false);
   }, []);
 
@@ -534,6 +545,16 @@ export function ProjectCrm() {
               projectSlug={(draft.slug.trim() || slugifyTitle(draft.title)).toLowerCase()}
               onUploadError={(msg) => setStatus(msg)}
             />
+
+            {globalDesign && (
+              <ProjectDesignSystemFields
+                binding={draft.designSystem}
+                globalSystem={globalDesign}
+                onChange={(binding) =>
+                  setDraft((d) => (d ? { ...d, designSystem: binding } : d))
+                }
+              />
+            )}
 
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <button

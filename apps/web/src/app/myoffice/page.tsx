@@ -73,6 +73,16 @@ export default async function MyOfficeHome() {
             Edit tagline, contact info, advocate prompt, and facts without touching code.
           </p>
         </Link>
+        <Link
+          href="/myoffice/design"
+          className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 hover:border-white/20"
+        >
+          <h3 className="font-display text-xl">Design system</h3>
+          <p className="mt-2 text-sm text-white/60">
+            Colors, typography, buttons, and radii — editable globally with per-project overrides.
+            Export as PDF.
+          </p>
+        </Link>
       </section>
 
       {!configured && (

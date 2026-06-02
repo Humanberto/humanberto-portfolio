@@ -45,6 +45,6 @@ export function toVec3(hex: string): [number, number, number] {
 
 export const fonts = {
   display: "var(--font-display)",
-  body: "var(--font-body)",
+  body: "var(--font-sans)",
   mono: "var(--font-mono)",
 } as const;

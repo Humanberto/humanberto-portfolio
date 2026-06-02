@@ -1,7 +1,12 @@
 import "server-only";
 import { getAdminSupabase } from "./supabase";
 
-export type ContentKey = "site" | "advocate_prompt" | "advocate_facts" | "projects";
+export type ContentKey =
+  | "site"
+  | "advocate_prompt"
+  | "advocate_facts"
+  | "projects"
+  | "design_system";
 
 export async function getContentOverride<T>(key: ContentKey): Promise<T | null> {
   const supabase = await getAdminSupabase();

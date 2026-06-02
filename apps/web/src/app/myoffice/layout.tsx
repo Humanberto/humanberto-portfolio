@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 const nav = [
   { href: "/myoffice", label: "Overview" },
   { href: "/myoffice/projects", label: "Projects" },
+  { href: "/myoffice/design", label: "Design system" },
   { href: "/myoffice/content", label: "Content" },
   { href: "/myoffice/llm", label: "LLM keys" },
 ];

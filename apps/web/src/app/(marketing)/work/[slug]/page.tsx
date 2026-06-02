@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Button, Container } from "@humanberto/ui";
+import { Button, Container, resolveProjectDesignSystem } from "@humanberto/ui";
 import { StatusPill } from "@/components/work/status-pill";
 import { ProjectGallery } from "@/components/work/project-gallery";
 import { ProjectProcessTimeline } from "@/components/work/project-process-timeline";
 import { ProjectVideos } from "@/components/work/project-videos";
+import { DesignSystemStyles } from "@/components/theme/design-system-styles";
+import { getGlobalDesignSystem } from "@/lib/design-system.server";
 import { getProject, getProjects } from "@/lib/projects.server";
 
 export const dynamic = "force-dynamic";
@@ -35,8 +37,11 @@ export default async function CaseStudy({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const project = await getProject(slug);
+  const [project, globalDesign] = await Promise.all([getProject(slug), getGlobalDesignSystem()]);
   if (!project) notFound();
+
+  const projectDesign = resolveProjectDesignSystem(globalDesign, project.designSystem);
+  const useProjectTheme = project.designSystem?.mode === "custom";
 
   const externalLinks = [
     { label: "Visit live site", href: project.links.live },
@@ -46,7 +51,10 @@ export default async function CaseStudy({
   ].filter((l): l is { label: string; href: string } => Boolean(l.href));
 
   return (
-    <article className="pt-32">
+    <article className={`pt-32 ${useProjectTheme ? "project-theme" : ""}`}>
+      {useProjectTheme && (
+        <DesignSystemStyles system={projectDesign} selector=".project-theme" />
+      )}
       <Container className="max-w-3xl">
         <Link
           href="/work"
