@@ -16,23 +16,94 @@ async function resolveTenantId(tenantId?: string): Promise<string> {
   return ctx?.tenantId ?? defaultTenantId();
 }
 
+function isMissingTenantColumn(message: string | undefined): boolean {
+  if (!message) return false;
+  return /tenant_id|column.*does not exist|Could not find the 'tenant_id'/i.test(message);
+}
+
+/** Read site_content — tenant-scoped when migration 0004 is applied, else legacy key-only. */
+async function readSiteContentValue(
+  key: ContentKey,
+  tenantId: string,
+): Promise<unknown | null> {
+  const supabase = await getAdminSupabase();
+  if (!supabase) return null;
+
+  const scoped = await supabase
+    .from("site_content")
+    .select("value")
+    .eq("tenant_id", tenantId)
+    .eq("key", key)
+    .maybeSingle();
+
+  if (!scoped.error && scoped.data?.value != null) {
+    return scoped.data.value;
+  }
+
+  if (isMissingTenantColumn(scoped.error?.message)) {
+    const legacy = await supabase
+      .from("site_content")
+      .select("value")
+      .eq("key", key)
+      .maybeSingle();
+
+    if (!legacy.error && legacy.data?.value != null) {
+      return legacy.data.value;
+    }
+  }
+
+  return null;
+}
+
+/** Write site_content — tenant-scoped when available, else legacy key-only upsert. */
+async function writeSiteContentValue(
+  key: ContentKey,
+  value: unknown,
+  tenantId: string,
+): Promise<boolean> {
+  const supabase = await getAdminSupabase();
+  if (!supabase) return false;
+
+  const updatedAt = new Date().toISOString();
+
+  const scoped = await supabase.from("site_content").upsert(
+    {
+      tenant_id: tenantId,
+      key,
+      value,
+      updated_at: updatedAt,
+    },
+    { onConflict: "tenant_id,key" },
+  );
+
+  if (!scoped.error) return true;
+
+  if (isMissingTenantColumn(scoped.error.message)) {
+    const legacy = await supabase.from("site_content").upsert(
+      {
+        key,
+        value,
+        updated_at: updatedAt,
+      },
+      { onConflict: "key" },
+    );
+    if (!legacy.error) return true;
+    console.error("[myoffice] legacy save content failed", legacy.error);
+    return false;
+  }
+
+  console.error("[myoffice] save content failed", scoped.error);
+  return false;
+}
+
 export async function getContentOverride<T>(
   key: ContentKey,
   tenantId?: string,
 ): Promise<T | null> {
-  const supabase = await getAdminSupabase();
-  if (!supabase) return null;
   const tid = await resolveTenantId(tenantId);
-
-  const { data, error } = await supabase
-    .from("site_content")
-    .select("value")
-    .eq("tenant_id", tid)
-    .eq("key", key)
-    .maybeSingle();
-
-  if (error || data == null || data.value == null) return null;
-  return data.value as T;
+  const value = await readSiteContentValue(key, tid);
+  if (value == null) return null;
+  return value as T;
 }
 
 export async function setContentOverride(
@@ -40,25 +111,8 @@ export async function setContentOverride(
   value: unknown,
   tenantId?: string,
 ): Promise<boolean> {
-  const supabase = await getAdminSupabase();
-  if (!supabase) return false;
   const tid = await resolveTenantId(tenantId);
-
-  const { error } = await supabase.from("site_content").upsert(
-    {
-      tenant_id: tid,
-      key,
-      value,
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: "tenant_id,key" },
-  );
-
-  if (error) {
-    console.error("[myoffice] save content failed", error);
-    return false;
-  }
-  return true;
+  return writeSiteContentValue(key, value, tid);
 }
 
 export async function listContentKeys(
@@ -74,8 +128,20 @@ export async function listContentKeys(
     .eq("tenant_id", tid)
     .order("key");
 
-  if (error || !data) return [];
-  return data.map((row) => ({
+  if (!error && data) {
+    return data.map((row) => ({
+      key: row.key as string,
+      updatedAt: row.updated_at as string,
+    }));
+  }
+
+  const legacy = await supabase
+    .from("site_content")
+    .select("key, updated_at")
+    .order("key");
+
+  if (legacy.error || !legacy.data) return [];
+  return legacy.data.map((row) => ({
     key: row.key as string,
     updatedAt: row.updated_at as string,
   }));
@@ -87,36 +153,17 @@ export async function seedTenantDefaults(tenantId: string): Promise<void> {
 
   const keys: ContentKey[] = ["site", "projects", "design_system"];
   for (const key of keys) {
-    const { data: existing } = await supabase
-      .from("site_content")
-      .select("key")
-      .eq("tenant_id", tenantId)
-      .eq("key", key)
-      .maybeSingle();
-    if (existing) continue;
+    const existing = await readSiteContentValue(key, tenantId);
+    if (existing != null) continue;
 
     if (key === "projects") {
-      await supabase.from("site_content").insert({
-        tenant_id: tenantId,
-        key,
-        value: [],
-      });
+      await writeSiteContentValue(key, [], tenantId);
       continue;
     }
 
-    const { data: template } = await supabase
-      .from("site_content")
-      .select("value")
-      .eq("tenant_id", defaultTenantId())
-      .eq("key", key)
-      .maybeSingle();
-
-    if (template?.value) {
-      await supabase.from("site_content").insert({
-        tenant_id: tenantId,
-        key,
-        value: template.value,
-      });
+    const template = await readSiteContentValue(key, defaultTenantId());
+    if (template != null) {
+      await writeSiteContentValue(key, template, tenantId);
     }
   }
 }

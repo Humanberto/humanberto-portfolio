@@ -150,7 +150,6 @@ export function ProjectCrm() {
     if (!res.ok) {
       const err = (await res.json().catch(() => ({}))) as { error?: string };
       setStatus(err.error ?? "Update failed.");
-      await refresh();
       return null;
     }
     const data = (await res.json()) as { project: AdminProject };
@@ -167,16 +166,18 @@ export function ProjectCrm() {
 
     const optimistic = { ...previous, ...patch };
     setProjects((prev) => prev.map((p) => (p.slug === slug ? optimistic : p)));
-    if (selectedSlug === slug && draft) {
-      setDraft((d) => (d ? { ...d, ...patch } : d));
+    if (selectedSlug === slug) {
+      setDraft(optimistic);
     }
 
     const saved = await patchProject(slug, patch);
     if (!saved) {
       setProjects((prev) => prev.map((p) => (p.slug === slug ? previous : p)));
-      if (selectedSlug === slug && draft) {
-        setDraft((d) => (d ? { ...d, ...previous } : d));
+      if (selectedSlug === slug) {
+        setDraft(previous);
       }
+    } else {
+      setStatus("");
     }
   }
 
@@ -498,9 +499,13 @@ export function ProjectCrm() {
                 <input
                   type="checkbox"
                   checked={Boolean(draft.featured)}
-                  onChange={(e) =>
-                    setDraft((d) => (d ? { ...d, featured: e.target.checked } : d))
-                  }
+                  onChange={(e) => {
+                    const featured = e.target.checked;
+                    setDraft((d) => (d ? { ...d, featured } : d));
+                    if (!isNew && selectedSlug) {
+                      void quickToggle(selectedSlug, { featured });
+                    }
+                  }}
                 />
                 Featured on homepage
               </label>

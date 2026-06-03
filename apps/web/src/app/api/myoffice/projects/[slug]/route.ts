@@ -16,9 +16,13 @@ function parsePatch(raw: unknown, current: AdminProject): AdminProject | null {
     p.slug?.trim() ||
     (p.title ? slugifyTitle(p.title) : current.slug);
 
+  const published =
+    typeof p.published === "boolean" ? p.published : current.published;
+  const featured =
+    typeof p.featured === "boolean" ? p.featured : current.featured;
+
   return {
     ...current,
-    ...p,
     slug: slug.toLowerCase(),
     title,
     tagline: (p.tagline ?? current.tagline).trim(),
@@ -29,11 +33,10 @@ function parsePatch(raw: unknown, current: AdminProject): AdminProject | null {
     outcomes: Array.isArray(p.outcomes) ? p.outcomes : current.outcomes,
     stack: Array.isArray(p.stack) ? p.stack : current.stack,
     links: { ...current.links, ...(p.links ?? {}) },
-    published:
-      typeof p.published === "boolean" ? p.published : current.published,
-    featured: typeof p.featured === "boolean" ? p.featured : current.featured,
     accent: p.accent === "purple" ? "purple" : p.accent === "gold" ? "gold" : current.accent,
     ...parseProjectFields({ ...current, ...p }),
+    published,
+    featured,
   };
 }
 
