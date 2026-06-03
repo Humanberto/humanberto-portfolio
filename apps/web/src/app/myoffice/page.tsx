@@ -84,7 +84,7 @@ export default async function MyOfficeHome() {
           </p>
         </Link>
         <Link
-          href="/build"
+          href="/studio"
           className="rounded-2xl border border-gold/30 bg-gold/5 p-6 hover:border-gold/50"
         >
           <h3 className="font-display text-xl">Humanberto Studio</h3>

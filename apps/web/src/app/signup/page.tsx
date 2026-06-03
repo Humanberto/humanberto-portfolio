@@ -59,7 +59,7 @@ function SignupForm() {
   return (
     <div className="flex min-h-dvh items-center justify-center px-6 py-16">
       <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.03] p-8">
-        <Link href="/build" className="text-xs text-white/50 hover:text-white">
+        <Link href="/studio" className="text-xs text-white/50 hover:text-white">
           ← Humanberto Studio
         </Link>
         <h1 className="mt-4 font-display text-2xl">

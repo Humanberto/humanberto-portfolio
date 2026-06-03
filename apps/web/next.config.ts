@@ -6,6 +6,11 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["@humanberto/ui"],
   },
+  async redirects() {
+    return [
+      { source: "/build", destination: "/studio", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;

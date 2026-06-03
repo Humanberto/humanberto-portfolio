@@ -10,6 +10,7 @@ const PUBLIC_OFFICE_API = new Set([
 
 const PUBLIC_AUTH_PATHS = new Set([
   "/signup",
+  "/studio",
   "/build",
   "/onboarding",
   "/auth/callback",
@@ -79,6 +80,7 @@ export const config = {
     "/myoffice/:path*",
     "/api/myoffice/:path*",
     "/signup",
+    "/studio",
     "/build",
     "/onboarding",
     "/auth/callback",

@@ -66,6 +66,10 @@ export function ProjectCrm() {
   );
 
   function openEdit(slug: string) {
+    if (selectedSlug === slug && !isNew) {
+      closeEditor();
+      return;
+    }
     const project = projects.find((p) => p.slug === slug);
     if (!project) return;
     setIsNew(false);
@@ -196,7 +200,7 @@ export function ProjectCrm() {
           </button>
         </div>
         <p className="mt-1 text-xs text-white/50">
-          Hidden projects stay in the back office only. Featured + published appear on the homepage.
+          Click a project to edit; click again to close. Hidden projects stay off the public site.
         </p>
         <ul className="mt-4 space-y-2">
           {projects.map((p, i) => (
@@ -222,6 +226,13 @@ export function ProjectCrm() {
                   </p>
                 </button>
                 <div className="flex shrink-0 gap-1">
+                  <Link
+                    href={`/myoffice/studio?project=${encodeURIComponent(p.slug)}`}
+                    title="Open in Studio"
+                    className="rounded border border-purple/40 px-1.5 py-0.5 text-xs text-purple-soft hover:bg-purple/10"
+                  >
+                    Studio
+                  </Link>
                   <button
                     type="button"
                     title="Move up"
@@ -284,7 +295,7 @@ export function ProjectCrm() {
             <p>Select a project to edit, or create a new one.</p>
           </div>
         ) : (
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
             <div className="space-y-4">
             <div className="flex items-center justify-between gap-3">
               <h3 className="font-display text-lg">

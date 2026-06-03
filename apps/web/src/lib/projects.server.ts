@@ -17,7 +17,7 @@ export {
 function withPublishedDefaults(items: Project[]): AdminProject[] {
   return items.map((p) => ({
     ...p,
-    published: p.published !== false,
+    published: p.published ?? true,
   }));
 }
 

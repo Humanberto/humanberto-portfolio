@@ -83,7 +83,7 @@ export function ProjectStudioPanel({
   }, [input, loading, onProjectChange, onSaveNeeded]);
 
   return (
-    <aside className="flex min-h-[480px] flex-col rounded-2xl border border-purple/30 bg-purple/5 xl:min-h-0">
+    <aside className="flex min-h-[420px] flex-col rounded-2xl border border-purple/30 bg-purple/5 lg:min-h-0">
       <div className="border-b border-white/10 px-4 py-3">
         <h3 className="font-display text-lg">Project studio</h3>
         <p className="text-xs text-white/50">Case study copy &amp; design — updates live</p>
