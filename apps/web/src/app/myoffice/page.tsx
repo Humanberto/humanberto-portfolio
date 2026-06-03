@@ -83,6 +83,15 @@ export default async function MyOfficeHome() {
             Export as PDF.
           </p>
         </Link>
+        <Link
+          href="/build"
+          className="rounded-2xl border border-gold/30 bg-gold/5 p-6 hover:border-gold/50"
+        >
+          <h3 className="font-display text-xl">Humanberto Studio</h3>
+          <p className="mt-2 text-sm text-white/60">
+            Product mode — invite others to build portfolios here.
+          </p>
+        </Link>
       </section>
 
       {!configured && (

@@ -1,6 +1,8 @@
 import "server-only";
 import type { LanguageModel } from "ai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { resolveOfficeContext } from "@/lib/tenant/office-context";
+import { defaultTenantId } from "@/lib/tenant/server";
 import { decryptSecret, encryptSecret, keyHint } from "./crypto";
 import { getAdminSupabase } from "./supabase";
 
@@ -37,6 +39,12 @@ export interface LlmProviderInput {
   enabled?: boolean;
 }
 
+async function tenantIdForLlm(explicit?: string): Promise<string> {
+  if (explicit?.trim()) return explicit.trim();
+  const ctx = await resolveOfficeContext();
+  return ctx?.tenantId ?? defaultTenantId();
+}
+
 function toPublic(row: LlmProviderRow): LlmProviderPublic {
   return {
     id: row.id,
@@ -66,13 +74,18 @@ export async function listLlmProviders(): Promise<LlmProviderPublic[]> {
   return (data as LlmProviderRow[]).map(toPublic);
 }
 
-export async function createLlmProvider(input: LlmProviderInput): Promise<LlmProviderPublic | null> {
+export async function createLlmProvider(
+  input: LlmProviderInput,
+  tenantId?: string,
+): Promise<LlmProviderPublic | null> {
   const supabase = await getAdminSupabase();
   if (!supabase) return null;
+  const tid = await tenantIdForLlm(tenantId);
 
   const { data: maxRow } = await supabase
     .from("llm_providers")
     .select("sort_order")
+    .eq("tenant_id", tid)
     .order("sort_order", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -82,6 +95,7 @@ export async function createLlmProvider(input: LlmProviderInput): Promise<LlmPro
   const { data, error } = await supabase
     .from("llm_providers")
     .insert({
+      tenant_id: tid,
       label: input.label.trim(),
       provider: input.provider,
       model_id: input.modelId.trim(),
@@ -103,9 +117,11 @@ export async function createLlmProvider(input: LlmProviderInput): Promise<LlmPro
 export async function updateLlmProvider(
   id: string,
   patch: Partial<LlmProviderInput> & { enabled?: boolean },
+  tenantId?: string,
 ): Promise<boolean> {
   const supabase = await getAdminSupabase();
   if (!supabase) return false;
+  const tid = await tenantIdForLlm(tenantId);
 
   const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
   if (patch.label !== undefined) update.label = patch.label.trim();
@@ -117,7 +133,11 @@ export async function updateLlmProvider(
     update.key_hint = keyHint(patch.apiKey);
   }
 
-  const { error } = await supabase.from("llm_providers").update(update).eq("id", id);
+  const { error } = await supabase
+    .from("llm_providers")
+    .update(update)
+    .eq("id", id)
+    .eq("tenant_id", tid);
   if (error) {
     console.error("[myoffice] update llm provider failed", error);
     return false;
@@ -125,10 +145,15 @@ export async function updateLlmProvider(
   return true;
 }
 
-export async function deleteLlmProvider(id: string): Promise<boolean> {
+export async function deleteLlmProvider(id: string, tenantId?: string): Promise<boolean> {
   const supabase = await getAdminSupabase();
   if (!supabase) return false;
-  const { error } = await supabase.from("llm_providers").delete().eq("id", id);
+  const tid = await tenantIdForLlm(tenantId);
+  const { error } = await supabase
+    .from("llm_providers")
+    .delete()
+    .eq("id", id)
+    .eq("tenant_id", tid);
   if (error) {
     console.error("[myoffice] delete llm provider failed", error);
     return false;
@@ -136,15 +161,20 @@ export async function deleteLlmProvider(id: string): Promise<boolean> {
   return true;
 }
 
-export async function reorderLlmProviders(idsInOrder: string[]): Promise<boolean> {
+export async function reorderLlmProviders(
+  idsInOrder: string[],
+  tenantId?: string,
+): Promise<boolean> {
   const supabase = await getAdminSupabase();
   if (!supabase) return false;
+  const tid = await tenantIdForLlm(tenantId);
 
   for (let i = 0; i < idsInOrder.length; i++) {
     const { error } = await supabase
       .from("llm_providers")
       .update({ sort_order: i, updated_at: new Date().toISOString() })
-      .eq("id", idsInOrder[i]);
+      .eq("id", idsInOrder[i])
+      .eq("tenant_id", tid);
     if (error) {
       console.error("[myoffice] reorder llm provider failed", error);
       return false;
@@ -172,12 +202,16 @@ function rowToModel(row: LlmProviderRow): LanguageModel | string {
 }
 
 /** Resolve models in admin-defined priority order. Falls back to env when DB is empty. */
-export async function resolveModelChain(): Promise<(LanguageModel | string)[]> {
+export async function resolveModelChain(
+  tenantId?: string,
+): Promise<(LanguageModel | string)[]> {
   const supabase = await getAdminSupabase();
+  const tid = await tenantIdForLlm(tenantId);
   if (supabase) {
     const { data, error } = await supabase
       .from("llm_providers")
       .select("*")
+      .eq("tenant_id", tid)
       .eq("enabled", true)
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: true });

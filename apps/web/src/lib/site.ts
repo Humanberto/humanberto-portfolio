@@ -21,6 +21,7 @@ export const fitCheckHref = "/chat#fit-check" as const;
 
 export const navLinks: { href: string; label: string }[] = [
   { href: "/work", label: "Work" },
+  { href: "/build", label: "Studio" },
   { href: "/about", label: "About" },
   { href: "/chat", label: "AI Advocate" },
   { href: fitCheckHref, label: "Score my fit" },

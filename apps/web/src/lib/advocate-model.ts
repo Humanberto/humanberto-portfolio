@@ -4,8 +4,9 @@ import { isRetryableModelError, resolveModelChain } from "@/lib/admin/llm-provid
 
 export async function withModelChain<T>(
   run: (model: LanguageModel | string) => Promise<T>,
+  tenantId?: string,
 ): Promise<T> {
-  const chain = await resolveModelChain();
+  const chain = await resolveModelChain(tenantId);
   let lastError: unknown;
 
   for (const model of chain) {
