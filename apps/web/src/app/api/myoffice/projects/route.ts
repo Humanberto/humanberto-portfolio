@@ -35,7 +35,7 @@ function parseProject(raw: unknown): AdminProject | null {
       prototype: p.links?.prototype?.trim() || undefined,
     },
     featured: Boolean(p.featured),
-    published: p.published === true,
+    published: typeof p.published === "boolean" ? p.published : false,
     accent: p.accent === "purple" ? "purple" : "gold",
     ...parseProjectFields(p),
   };

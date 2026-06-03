@@ -106,6 +106,7 @@ export function ProjectCrm() {
     const payload: AdminProject = {
       ...draft,
       slug: (draft.slug.trim() || slugifyTitle(draft.title)).toLowerCase(),
+      published: draft.published,
     };
 
     setStatus("Saving…");
@@ -140,17 +141,42 @@ export function ProjectCrm() {
     return saveDraft();
   }
 
-  async function quickToggle(slug: string, patch: Partial<AdminProject>) {
-    const next = projects.map((p) => (p.slug === slug ? { ...p, ...patch } : p));
-    setProjects(next);
-    const res = await fetch("/api/myoffice/projects", {
-      method: "PUT",
+  async function patchProject(slug: string, patch: Partial<AdminProject>) {
+    const res = await fetch(`/api/myoffice/projects/${encodeURIComponent(slug)}`, {
+      method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ projects: next }),
+      body: JSON.stringify(patch),
     });
     if (!res.ok) {
-      setStatus("Update failed.");
+      const err = (await res.json().catch(() => ({}))) as { error?: string };
+      setStatus(err.error ?? "Update failed.");
       await refresh();
+      return null;
+    }
+    const data = (await res.json()) as { project: AdminProject };
+    setProjects((prev) => prev.map((p) => (p.slug === slug ? data.project : p)));
+    if (selectedSlug === slug) {
+      setDraft(data.project);
+    }
+    return data.project;
+  }
+
+  async function quickToggle(slug: string, patch: Partial<AdminProject>) {
+    const previous = projects.find((p) => p.slug === slug);
+    if (!previous) return;
+
+    const optimistic = { ...previous, ...patch };
+    setProjects((prev) => prev.map((p) => (p.slug === slug ? optimistic : p)));
+    if (selectedSlug === slug && draft) {
+      setDraft((d) => (d ? { ...d, ...patch } : d));
+    }
+
+    const saved = await patchProject(slug, patch);
+    if (!saved) {
+      setProjects((prev) => prev.map((p) => (p.slug === slug ? previous : p)));
+      if (selectedSlug === slug && draft) {
+        setDraft((d) => (d ? { ...d, ...previous } : d));
+      }
     }
   }
 
@@ -254,23 +280,31 @@ export function ProjectCrm() {
                 </div>
               </div>
               <div className="mt-2 flex flex-wrap items-center gap-3 text-xs">
-                <label className="flex items-center gap-1.5 text-white/70">
+                <label
+                  className="flex items-center gap-1.5 text-white/70"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <input
                     type="checkbox"
-                    checked={p.published}
-                    onChange={(e) =>
-                      void quickToggle(p.slug, { published: e.target.checked })
-                    }
+                    checked={Boolean(p.published)}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      void quickToggle(p.slug, { published: e.target.checked });
+                    }}
                   />
                   Visible
                 </label>
-                <label className="flex items-center gap-1.5 text-white/70">
+                <label
+                  className="flex items-center gap-1.5 text-white/70"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <input
                     type="checkbox"
                     checked={Boolean(p.featured)}
-                    onChange={(e) =>
-                      void quickToggle(p.slug, { featured: e.target.checked })
-                    }
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      void quickToggle(p.slug, { featured: e.target.checked });
+                    }}
                   />
                   Featured
                 </label>
@@ -449,10 +483,14 @@ export function ProjectCrm() {
               <label className="flex items-center gap-2 text-white/70">
                 <input
                   type="checkbox"
-                  checked={draft.published}
-                  onChange={(e) =>
-                    setDraft((d) => (d ? { ...d, published: e.target.checked } : d))
-                  }
+                  checked={Boolean(draft.published)}
+                  onChange={(e) => {
+                    const published = e.target.checked;
+                    setDraft((d) => (d ? { ...d, published } : d));
+                    if (!isNew && selectedSlug) {
+                      void quickToggle(selectedSlug, { published });
+                    }
+                  }}
                 />
                 Published (visible on site)
               </label>

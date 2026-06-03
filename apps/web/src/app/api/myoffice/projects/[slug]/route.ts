@@ -29,8 +29,9 @@ function parsePatch(raw: unknown, current: AdminProject): AdminProject | null {
     outcomes: Array.isArray(p.outcomes) ? p.outcomes : current.outcomes,
     stack: Array.isArray(p.stack) ? p.stack : current.stack,
     links: { ...current.links, ...(p.links ?? {}) },
-    published: p.published ?? current.published,
-    featured: p.featured ?? current.featured,
+    published:
+      typeof p.published === "boolean" ? p.published : current.published,
+    featured: typeof p.featured === "boolean" ? p.featured : current.featured,
     accent: p.accent === "purple" ? "purple" : p.accent === "gold" ? "gold" : current.accent,
     ...parseProjectFields({ ...current, ...p }),
   };

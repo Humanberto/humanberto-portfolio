@@ -14,10 +14,14 @@ export {
   PROJECT_ACCENTS,
 } from "@/lib/projects.shared";
 
+function normalizePublished(p: Project): boolean {
+  return typeof p.published === "boolean" ? p.published : true;
+}
+
 function withPublishedDefaults(items: Project[]): AdminProject[] {
   return items.map((p) => ({
     ...p,
-    published: p.published ?? true,
+    published: normalizePublished(p),
   }));
 }
 

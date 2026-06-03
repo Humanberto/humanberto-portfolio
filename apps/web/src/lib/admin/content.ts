@@ -31,7 +31,7 @@ export async function getContentOverride<T>(
     .eq("key", key)
     .maybeSingle();
 
-  if (error || !data?.value) return null;
+  if (error || data == null || data.value == null) return null;
   return data.value as T;
 }
 
