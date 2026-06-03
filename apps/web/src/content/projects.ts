@@ -125,7 +125,7 @@ export const projects: Project[] = [
       "Clear data model and auth that demonstrates full-stack and product thinking end to end.",
     ],
     stack: ["Next.js", "TypeScript", "Supabase (Postgres + Auth)", "Tailwind"],
-    links: { repo: "https://github.com/Humanberto/vztr-help" },
+    links: { live: "https://vztr-help.vercel.app/access" },
   },
   {
     slug: "petchmaker",
@@ -152,7 +152,7 @@ export const projects: Project[] = [
       "Shows product judgment around a sensitive, human problem - plus the data model behind it.",
     ],
     stack: ["Next.js", "TypeScript", "Supabase (Postgres + Auth)", "Tailwind"],
-    links: { repo: "https://github.com/Humanberto/petchmaker" },
+    links: { live: "https://petchmaker.vercel.app/access" },
   },
   {
     slug: "falafel-heights-redesign",
@@ -284,29 +284,29 @@ export const projects: Project[] = [
     links: { repo: "https://github.com/Humanberto/duckdb-rides-pipeline" },
   },
   {
-    slug: "resume-job-matcher",
-    title: "Resume / Job Matcher",
-    tagline: "Score a resume against a job description - and name the gaps.",
+    slug: "rolefit",
+    title: "RoleFit",
+    tagline: "Honest resume-to-role fit scoring — with the gaps named.",
     year: "2026",
-    role: "Applied ML / NLP",
-    pillars: ["AI/ML", "Python"],
+    role: "Applied ML / product",
+    pillars: ["AI/ML", "Python", "Product Design"],
     status: "live",
     accent: "gold",
     summary:
-      "A focused Python tool that scores how well a resume matches a job description and, more usefully, lists which of the job's important keywords are covered and which are missing.",
+      "A focused tool that scores how well a resume matches a job description and lists which important keywords are covered versus missing — transparent TF-IDF, no black-box embeddings.",
     problem:
       "A single similarity number is useless on its own. The actionable question is: what does this resume already cover, and what should it address?",
     approach: [
-      "Used TF-IDF cosine similarity (scikit-learn) on purpose - transparent and explainable, no opaque embeddings.",
+      "Used TF-IDF cosine similarity (scikit-learn) on purpose — transparent and explainable.",
       "Ranked the job's terms by importance and split them into covered vs. missing buckets.",
-      "Wrapped it in a CLI and a small Python API, with tests.",
+      "Wrapped it in a gated web demo and CLI, with tests.",
     ],
     outcomes: [
-      "An honest, actionable read on fit - the same honesty-first thinking behind this site's AI advocate.",
-      "A clean, tested package others can drop into their own tooling.",
+      "An honest, actionable read on fit — the same honesty-first thinking behind this site's AI advocate.",
+      "Private product codebase; public case study and invite-only demo.",
     ],
-    stack: ["Python", "scikit-learn", "CLI", "pytest"],
-    links: { repo: "https://github.com/Humanberto/resume-job-matcher" },
+    stack: ["Python", "scikit-learn", "Next.js demo gate", "pytest"],
+    links: { live: "https://rolefit-web.vercel.app/access" },
   },
 ];
 

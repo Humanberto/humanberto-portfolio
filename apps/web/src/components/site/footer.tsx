@@ -66,7 +66,15 @@ export function Footer() {
           <span>
             &copy; {new Date().getFullYear()} {site.name}. {site.location}.
           </span>
-          <span>Built with Next.js, deployed on Vercel.</span>
+          <div className="flex gap-4">
+            <Link href="/terms" className="hover:text-muted">
+              Terms
+            </Link>
+            <Link href="/privacy" className="hover:text-muted">
+              Privacy
+            </Link>
+            <span>Built with Next.js, deployed on Vercel.</span>
+          </div>
         </div>
       </Container>
     </footer>
