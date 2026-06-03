@@ -15,11 +15,13 @@ function SignupForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(authError ? "Sign-in failed. Try again." : "");
+  const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function oauth(provider: "google" | "github") {
     setLoading(true);
     setError("");
+    setNotice("");
     try {
       const supabase = createAuthClient();
       const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
@@ -39,15 +41,20 @@ function SignupForm() {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setNotice("");
     const supabase = createAuthClient();
     if (mode === "signup") {
-      const { error: err } = await supabase.auth.signUp({
+      const { data, error: err } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { full_name: name } },
+        options: {
+          data: { full_name: name },
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+        },
       });
       if (err) setError(err.message);
-      else window.location.href = next;
+      else if (data.session) window.location.href = next;
+      else setNotice("Check your email to confirm your account, then sign in.");
     } else {
       const { error: err } = await supabase.auth.signInWithPassword({ email, password });
       if (err) setError(err.message);
@@ -135,6 +142,7 @@ function SignupForm() {
             className="w-full rounded-xl border border-white/15 bg-black/30 px-4 py-3 text-sm"
           />
           {error && <p className="text-sm text-rose-300">{error}</p>}
+          {notice && <p className="text-sm text-emerald-300">{notice}</p>}
           <button
             type="submit"
             disabled={loading}

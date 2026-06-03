@@ -10,7 +10,9 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "clean": "rimraf .next .turbo node_modules",
-    "setup:supabase": "node scripts/setup-supabase.mjs"
+    "setup:supabase": "node scripts/setup-supabase.mjs",
+    "setup:auth": "node scripts/configure-auth.mjs",
+    "db:migrate": "node scripts/apply-migrations-pg.mjs"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.80",
@@ -33,6 +35,7 @@
     "@types/react-dom": "^19.0.0",
     "eslint": "^9.18.0",
     "eslint-config-next": "^15.0.0",
+    "pg": "^8.16.0",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.7.3"
   }

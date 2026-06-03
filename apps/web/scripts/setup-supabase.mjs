@@ -10,17 +10,22 @@
  *   $env:SUPABASE_ORG_ID = "..."             # skip org auto-pick
  *   $env:SUPABASE_PROJECT_NAME = "humanberto-portfolio"
  *   $env:SUPABASE_REGION = "us-west-1"
+ *
+ * After setup, run configure-auth.mjs for Supabase Auth (anon key, redirects, OAuth).
  */
 
-import { execSync, spawnSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
-import { readFileSync, writeFileSync, existsSync, appendFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const webRoot = join(__dirname, "..");
-const repoRoot = join(webRoot, "..", "..");
+import { writeFileSync } from "node:fs";
+import { join } from "node:path";
+import {
+  addVercelEnv,
+  authRedirectUrls,
+  createSupabaseApi,
+  fetchAnonKey,
+  run,
+  upsertEnvLocal,
+  webRoot,
+} from "./supabase-utils.mjs";
 
 const TOKEN = process.env.SUPABASE_ACCESS_TOKEN;
 const PROJECT_NAME = process.env.SUPABASE_PROJECT_NAME ?? "humanberto-portfolio";
@@ -40,66 +45,31 @@ Missing SUPABASE_ACCESS_TOKEN.
   process.exit(1);
 }
 
-const headers = {
-  Authorization: `Bearer ${TOKEN}`,
-  "Content-Type": "application/json",
-};
-
-async function api(path, options = {}) {
-  const res = await fetch(`https://api.supabase.com/v1${path}`, {
-    ...options,
-    headers: { ...headers, ...(options.headers ?? {}) },
-  });
-  const text = await res.text();
-  let body;
-  try {
-    body = text ? JSON.parse(text) : null;
-  } catch {
-    body = text;
-  }
-  if (!res.ok) {
-    throw new Error(`API ${path} failed (${res.status}): ${JSON.stringify(body)}`);
-  }
-  return body;
-}
+const api = createSupabaseApi(TOKEN);
 
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-function run(cmd, opts = {}) {
-  console.log(`> ${cmd}`);
-  execSync(cmd, { stdio: "inherit", cwd: opts.cwd ?? repoRoot, ...opts });
-}
+async function configureAuth(ref, url) {
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://humanberto.com").replace(/\/$/, "");
+  const anonKey = await fetchAnonKey(api, ref);
 
-function upsertEnvLocal(key, value) {
-  const envPath = join(webRoot, ".env.local");
-  let content = existsSync(envPath) ? readFileSync(envPath, "utf8") : "";
-  if (content.length && !content.endsWith("\n")) content += "\n";
-  const line = `${key}=${value}`;
-  const re = new RegExp(`^${key}=.*$`, "m");
-  if (re.test(content)) {
-    content = content.replace(re, line);
-  } else {
-    content += line + "\n";
-  }
-  writeFileSync(envPath, content, "utf8");
-  console.log(`Updated .env.local → ${key}`);
-}
+  await api(`/projects/${ref}/config/auth`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      site_url: siteUrl,
+      additional_redirect_urls: authRedirectUrls(siteUrl),
+      disable_signup: false,
+      external_email_enabled: true,
+      mailer_autoconfirm: true,
+    }),
+  });
 
-function addVercelEnv(name, value) {
-  for (const env of ["production", "preview"]) {
-    const result = spawnSync(
-      "npx",
-      ["vercel", "env", "add", name, env, "--value", value, "--yes"],
-      { cwd: repoRoot, encoding: "utf8", shell: true },
-    );
-    if (result.status !== 0) {
-      console.warn(`vercel env add ${name} (${env}) failed — add manually if needed.`);
-    } else {
-      console.log(`Added Vercel env → ${name} (${env})`);
-    }
-  }
+  upsertEnvLocal("NEXT_PUBLIC_SUPABASE_ANON_KEY", anonKey);
+  upsertEnvLocal("NEXT_PUBLIC_SITE_URL", siteUrl);
+  addVercelEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", anonKey);
+  addVercelEnv("NEXT_PUBLIC_SITE_URL", siteUrl);
 }
 
 async function main() {
@@ -154,10 +124,8 @@ async function main() {
   const url = `https://${ref}.supabase.co`;
 
   // API keys
-  const keys = await api(`/projects/${ref}/api-keys`);
   const serviceKey =
-    keys.find((k) => k.name === "service_role")?.api_key ??
-    keys.find((k) => k.name === "service_role" && k.api_key)?.api_key;
+    (await api(`/projects/${ref}/api-keys`)).find((k) => k.name === "service_role")?.api_key;
 
   if (!serviceKey) {
     throw new Error("Could not fetch service_role API key.");
@@ -178,9 +146,11 @@ async function main() {
   }
   run("npx supabase db push --yes", { cwd: webRoot });
 
-  // Local env
   upsertEnvLocal("NEXT_PUBLIC_SUPABASE_URL", url);
   upsertEnvLocal("SUPABASE_SERVICE_ROLE_KEY", serviceKey);
+
+  console.log("\nConfiguring Supabase Auth…");
+  await configureAuth(ref, url);
 
   // Vercel
   console.log("\nAdding Vercel environment variables…");
@@ -210,12 +180,14 @@ Supabase project: ${PROJECT_NAME}
 URL:              ${url}
 Migrations:       applied via supabase db push
 Local env:        apps/web/.env.local updated
-Vercel env:       NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY
+Vercel env:       NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
+                  NEXT_PUBLIC_SUPABASE_ANON_KEY, NEXT_PUBLIC_SITE_URL
 
 Next steps:
-1. Redeploy on Vercel (Deployments → Redeploy)
-2. Open https://humanberto.com/myoffice and test Projects / Content saves
-3. Optional: delete apps/web/.supabase-setup.json after verifying
+1. Run: node apps/web/scripts/configure-auth.mjs (OAuth credentials if needed)
+2. Redeploy on Vercel (Deployments → Redeploy)
+3. Test https://humanberto.com/signup
+4. Optional: delete apps/web/.supabase-setup.json after verifying
 
 Service role key is in .env.local only — never commit it.
 `);
