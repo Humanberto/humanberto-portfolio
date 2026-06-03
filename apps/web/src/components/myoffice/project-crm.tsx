@@ -13,6 +13,7 @@ import {
 import type { Pillar } from "@/content/projects";
 import { ProjectRichContent } from "./project-rich-content";
 import { ProjectDesignSystemFields } from "./design-system-editor";
+import { ProjectStudioPanel } from "./project-studio-panel";
 import type { DesignSystem } from "@humanberto/ui";
 
 function linesToArray(text: string): string[] {
@@ -92,10 +93,10 @@ export function ProjectCrm() {
     setIsNew(false);
   }
 
-  async function saveDraft() {
+  async function saveDraft(): Promise<string | null> {
     if (!draft?.title.trim()) {
       setStatus("Title is required.");
-      return;
+      return null;
     }
 
     const payload: AdminProject = {
@@ -117,15 +118,22 @@ export function ProjectCrm() {
     if (!res.ok) {
       const err = (await res.json()) as { error?: string };
       setStatus(err.error ?? "Save failed.");
-      return;
+      return null;
     }
 
-    const data = (await res.json()) as { projects: AdminProject[] };
-    setProjects(data.projects);
-    setSelectedSlug(payload.slug);
-    setIsNew(false);
-    setDraft(data.projects.find((p) => p.slug === payload.slug) ?? payload);
+    setProjects(next);
+    if (isNew) {
+      setIsNew(false);
+      setSelectedSlug(payload.slug);
+    }
+    setDraft(payload);
     setStatus("Saved.");
+    return payload.slug;
+  }
+
+  async function ensureSavedForStudio(): Promise<string | null> {
+    if (!draft?.title.trim()) return null;
+    return saveDraft();
   }
 
   async function quickToggle(slug: string, patch: Partial<AdminProject>) {
@@ -270,13 +278,14 @@ export function ProjectCrm() {
         </ul>
       </section>
 
-      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 lg:col-span-1">
         {!draft ? (
           <div className="flex h-full min-h-[320px] flex-col items-center justify-center text-center text-white/50">
             <p>Select a project to edit, or create a new one.</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
+            <div className="space-y-4">
             <div className="flex items-center justify-between gap-3">
               <h3 className="font-display text-lg">
                 {isNew ? "New project" : "Edit project"}
@@ -575,6 +584,21 @@ export function ProjectCrm() {
               )}
               {status && <span className="text-sm text-white/60">{status}</span>}
             </div>
+            </div>
+
+            {globalDesign && draft.title.trim() && (
+              <ProjectStudioPanel
+                project={draft}
+                globalDesignSystem={globalDesign}
+                onProjectChange={(updated) => {
+                  setDraft(updated);
+                  setProjects((prev) =>
+                    prev.map((p) => (p.slug === updated.slug ? updated : p)),
+                  );
+                }}
+                onSaveNeeded={ensureSavedForStudio}
+              />
+            )}
           </div>
         )}
       </section>

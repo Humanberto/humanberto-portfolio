@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getAdminSessionFromCookies } from "@/lib/admin/auth";
+import { getTenantById } from "@/lib/tenant/server";
+import { resolveOfficeContext } from "@/lib/tenant/office-context";
+import { tenantPublicPath } from "@/lib/tenant/constants";
 
 export const metadata: Metadata = {
   title: "Back office",
@@ -19,32 +21,50 @@ const nav = [
 export default async function MyOfficeLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const authed = await getAdminSessionFromCookies();
+  const ctx = await resolveOfficeContext();
 
-  if (!authed) {
+  if (!ctx) {
     return (
       <div className="min-h-dvh bg-[#0b0610] text-[#f5eef8]">{children}</div>
     );
   }
+
+  const tenant = await getTenantById(ctx.tenantId);
+  const publicHref = tenant ? tenantPublicPath(tenant.slug) : "/";
 
   return (
     <div className="min-h-dvh bg-[#0b0610] text-[#f5eef8]">
       <header className="border-b border-white/10">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-white/50">Humanberto</p>
-            <h1 className="font-display text-xl">Back office</h1>
+            <p className="text-xs uppercase tracking-[0.2em] text-white/50">
+              {ctx.isLegacyAdmin ? "Humanberto" : "Humanberto Studio"}
+            </p>
+            <h1 className="font-display text-xl">
+              {tenant?.display_name ?? "Back office"}
+            </h1>
           </div>
-          <form action="/api/myoffice/auth/logout" method="post">
-            <button
-              type="submit"
-              className="rounded-full border border-white/15 px-4 py-2 text-sm text-white/80 hover:bg-white/5"
-            >
-              Sign out
-            </button>
-          </form>
+          <div className="flex items-center gap-3">
+            {tenant && (
+              <Link
+                href={publicHref}
+                target="_blank"
+                className="hidden rounded-full border border-white/15 px-4 py-2 text-sm text-white/80 hover:bg-white/5 sm:inline-block"
+              >
+                View site ↗
+              </Link>
+            )}
+            <form action="/api/myoffice/auth/logout" method="post">
+              <button
+                type="submit"
+                className="rounded-full border border-white/15 px-4 py-2 text-sm text-white/80 hover:bg-white/5"
+              >
+                Sign out
+              </button>
+            </form>
+          </div>
         </div>
-        <nav className="mx-auto flex max-w-5xl gap-2 px-6 pb-4">
+        <nav className="mx-auto flex max-w-5xl flex-wrap gap-2 px-6 pb-4">
           {nav.map((item) => (
             <Link
               key={item.href}

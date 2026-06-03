@@ -14,3 +14,8 @@ export function tenantPublicPath(slug: string): string {
   if (slug === BOOTSTRAP_TENANT_SLUG) return "/";
   return `/s/${slug}`;
 }
+
+export function tenantProjectPath(tenantSlug: string, projectSlug: string): string {
+  if (tenantSlug === BOOTSTRAP_TENANT_SLUG) return `/work/${projectSlug}`;
+  return `/s/${tenantSlug}/work/${projectSlug}`;
+}

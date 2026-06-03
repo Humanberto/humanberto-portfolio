@@ -5,13 +5,66 @@ import { withModelChain } from "@/lib/advocate-model";
 import { resolveOfficeContext } from "@/lib/tenant/office-context";
 import { getAdminSupabase } from "@/lib/admin/supabase";
 import {
+  PROJECT_STUDIO_SYSTEM_PROMPT,
   STUDIO_SYSTEM_PROMPT,
+  applyProjectStudioPatch,
   applyStudioPatch,
+  loadProjectStudioState,
   loadStudioState,
+  type ProjectStudioPatch,
   type StudioPatch,
 } from "@/lib/studio/agent";
 
 export const maxDuration = 60;
+
+const designSystemPatchSchema = z
+  .object({
+    name: z.string().optional(),
+    colors: z.record(z.string(), z.string()).optional(),
+    typography: z.record(z.string(), z.string()).optional(),
+    buttons: z
+      .object({
+        borderRadius: z.string().optional(),
+      })
+      .optional(),
+  })
+  .optional();
+
+const sitePatchSchema = z
+  .object({
+    name: z.string().optional(),
+    tagline: z.string().optional(),
+    role: z.string().optional(),
+    shortName: z.string().optional(),
+  })
+  .optional();
+
+const projectPatchSchema = z
+  .object({
+    title: z.string().optional(),
+    tagline: z.string().optional(),
+    summary: z.string().optional(),
+    problem: z.string().optional(),
+    approach: z.array(z.string()).optional(),
+    outcomes: z.array(z.string()).optional(),
+    stack: z.array(z.string()).optional(),
+    role: z.string().optional(),
+    year: z.string().optional(),
+    accent: z.enum(["gold", "purple"]).optional(),
+    designSystem: z
+      .object({
+        mode: z.enum(["inherit", "custom"]).optional(),
+        overrides: designSystemPatchSchema,
+      })
+      .optional(),
+  })
+  .optional();
+
+const studioPatchSchema = z.object({
+  designSystem: designSystemPatchSchema,
+  site: sitePatchSchema,
+  project: projectPatchSchema,
+});
 
 export async function POST(req: Request) {
   const ctx = await resolveOfficeContext();
@@ -19,83 +72,102 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = (await req.json()) as { message?: string };
+  const body = (await req.json()) as { message?: string; projectSlug?: string };
   const message = body.message?.trim();
+  const projectSlug = body.projectSlug?.trim().toLowerCase();
+
   if (!message) {
     return NextResponse.json({ error: "Message required." }, { status: 400 });
   }
 
-  const state = await loadStudioState(ctx.tenantId);
-  let appliedPatch: StudioPatch | null = null;
+  const isProjectMode = Boolean(projectSlug);
+  let state = isProjectMode
+    ? await loadProjectStudioState(ctx.tenantId, projectSlug!)
+    : await loadStudioState(ctx.tenantId);
+
+  if (isProjectMode && !state) {
+    return NextResponse.json({ error: "Project not found." }, { status: 404 });
+  }
+
+  let appliedSitePatch: StudioPatch | null = null;
+  let appliedProjectPatch: ProjectStudioPatch | null = null;
+
+  const systemPrompt = isProjectMode
+    ? `${PROJECT_STUDIO_SYSTEM_PROMPT}
+
+Project: ${(state as Awaited<ReturnType<typeof loadProjectStudioState>>)!.project.title}
+Slug: ${projectSlug}
+Tagline: ${(state as Awaited<ReturnType<typeof loadProjectStudioState>>)!.project.tagline}
+Summary: ${(state as Awaited<ReturnType<typeof loadProjectStudioState>>)!.project.summary.slice(0, 200)}`
+    : `${STUDIO_SYSTEM_PROMPT}
+
+Current design system name: ${(state as Awaited<ReturnType<typeof loadStudioState>>).designSystem.name}
+Current site tagline: ${(state as Awaited<ReturnType<typeof loadStudioState>>).site.tagline}
+Current site role: ${(state as Awaited<ReturnType<typeof loadStudioState>>).site.role}`;
 
   const result = await withModelChain(
     async (model) =>
       generateText({
-      model,
-      system: `${STUDIO_SYSTEM_PROMPT}
-
-Current design system name: ${state.designSystem.name}
-Current site tagline: ${state.site.tagline}
-Current site role: ${state.site.role}`,
-      prompt: message,
-      tools: {
-        applyStudioPatch: tool({
-          description: "Apply design system and/or site copy changes",
-          inputSchema: z.object({
-            designSystem: z
-              .object({
-                name: z.string().optional(),
-                colors: z.record(z.string(), z.string()).optional(),
-                typography: z.record(z.string(), z.string()).optional(),
-                buttons: z
-                  .object({
-                    borderRadius: z.string().optional(),
-                  })
-                  .optional(),
-              })
-              .optional(),
-            site: z
-              .object({
-                name: z.string().optional(),
-                tagline: z.string().optional(),
-                role: z.string().optional(),
-                shortName: z.string().optional(),
-              })
-              .optional(),
+        model,
+        system: systemPrompt,
+        prompt: message,
+        tools: {
+          applyStudioPatch: tool({
+            description: isProjectMode
+              ? "Apply case study copy and/or per-project design changes"
+              : "Apply design system and/or site copy changes",
+            inputSchema: studioPatchSchema,
+            execute: async (patch) => {
+              if (isProjectMode) {
+                if (patch.project) {
+                  appliedProjectPatch = patch.project as ProjectStudioPatch;
+                }
+              } else {
+                appliedSitePatch = patch as StudioPatch;
+              }
+              return { ok: true };
+            },
           }),
-          execute: async (patch) => {
-            appliedPatch = patch as StudioPatch;
-            return { ok: true };
-          },
-        }),
-      },
-      stopWhen: stepCountIs(3),
-    }),
+        },
+        stopWhen: stepCountIs(3),
+      }),
     ctx.tenantId,
   );
 
-  let preview = state;
-  if (appliedPatch) {
-    preview = await applyStudioPatch(ctx.tenantId, appliedPatch);
+  if (appliedProjectPatch && isProjectMode) {
+    state =
+      (await applyProjectStudioPatch(ctx.tenantId, projectSlug!, appliedProjectPatch)) ?? state;
+  } else if (appliedSitePatch && !isProjectMode) {
+    state = await applyStudioPatch(ctx.tenantId, appliedSitePatch);
   }
+
+  const patchForLog = appliedProjectPatch
+    ? { project: appliedProjectPatch }
+    : appliedSitePatch;
 
   const supabase = await getAdminSupabase();
   if (supabase && ctx.userId) {
     await supabase.from("studio_messages").insert([
-      { tenant_id: ctx.tenantId, user_id: ctx.userId, role: "user", content: message },
+      {
+        tenant_id: ctx.tenantId,
+        user_id: ctx.userId,
+        role: "user",
+        content: message,
+        patches: projectSlug ? { projectSlug } : null,
+      },
       {
         tenant_id: ctx.tenantId,
         user_id: ctx.userId,
         role: "assistant",
         content: result.text,
-        patches: appliedPatch,
+        patches: patchForLog,
       },
     ]);
   }
 
   return NextResponse.json({
     reply: result.text,
-    patch: appliedPatch,
-    preview,
+    patch: patchForLog,
+    preview: state,
   });
 }

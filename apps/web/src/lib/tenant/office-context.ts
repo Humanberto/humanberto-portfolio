@@ -27,11 +27,12 @@ export async function resolveOfficeContext(): Promise<OfficeContext | null> {
 
     const jar = await cookies();
     let tenantId = jar.get(TENANT_COOKIE)?.value;
+    const memberships = await getTenantsForUser(user.id);
     if (!tenantId) {
-      const tenants = await getTenantsForUser(user.id);
-      tenantId = tenants[0]?.id;
+      tenantId = memberships[0]?.id;
     }
     if (!tenantId) return null;
+    if (!memberships.some((t) => t.id === tenantId)) return null;
 
     return { tenantId, userId: user.id, isLegacyAdmin: false };
   } catch {

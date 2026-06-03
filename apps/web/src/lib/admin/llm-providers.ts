@@ -57,13 +57,15 @@ function toPublic(row: LlmProviderRow): LlmProviderPublic {
   };
 }
 
-export async function listLlmProviders(): Promise<LlmProviderPublic[]> {
+export async function listLlmProviders(tenantId?: string): Promise<LlmProviderPublic[]> {
   const supabase = await getAdminSupabase();
   if (!supabase) return [];
+  const tid = await tenantIdForLlm(tenantId);
 
   const { data, error } = await supabase
     .from("llm_providers")
     .select("*")
+    .eq("tenant_id", tid)
     .order("sort_order", { ascending: true })
     .order("created_at", { ascending: true });
 

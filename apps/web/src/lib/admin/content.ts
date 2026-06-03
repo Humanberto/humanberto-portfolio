@@ -95,6 +95,15 @@ export async function seedTenantDefaults(tenantId: string): Promise<void> {
       .maybeSingle();
     if (existing) continue;
 
+    if (key === "projects") {
+      await supabase.from("site_content").insert({
+        tenant_id: tenantId,
+        key,
+        value: [],
+      });
+      continue;
+    }
+
     const { data: template } = await supabase
       .from("site_content")
       .select("value")

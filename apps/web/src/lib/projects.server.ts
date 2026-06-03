@@ -47,8 +47,9 @@ export async function getProject(slug: string, tenantId?: string): Promise<Proje
 export async function getAllProjects(tenantId?: string): Promise<AdminProject[]> {
   const tid = tenantId ?? (await tenantIdForRead());
   const override = await getContentOverride<Project[]>("projects", tid);
-  const source = override?.length ? override : defaultProjects;
-  return withPublishedDefaults(source);
+  if (override !== null) return withPublishedDefaults(override);
+  if (tid === defaultTenantId()) return withPublishedDefaults(defaultProjects);
+  return [];
 }
 
 export async function saveAllProjects(

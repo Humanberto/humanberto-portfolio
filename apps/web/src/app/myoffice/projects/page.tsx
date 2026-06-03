@@ -5,8 +5,8 @@ export default function MyOfficeProjectsPage() {
     <div>
       <h2 className="font-display text-2xl">Projects</h2>
       <p className="mt-2 text-sm text-white/60">
-        Show, hide, edit, and reorder portfolio work. Changes appear on the live site
-        immediately — no redeploy needed.
+        Show, hide, edit, and reorder portfolio work. Each project has its own Studio agent
+        on the right — chat while case study copy and design update live.
       </p>
       <div className="mt-8">
         <ProjectCrm />
