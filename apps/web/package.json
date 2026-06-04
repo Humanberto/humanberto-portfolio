@@ -14,6 +14,7 @@
     "clean": "rimraf .next .turbo node_modules",
     "setup:supabase": "node scripts/setup-supabase.mjs",
     "setup:auth": "node scripts/configure-auth.mjs",
+    "diagnose:google-auth": "node scripts/diagnose-google-auth.mjs",
     "db:migrate": "node scripts/apply-migrations-pg.mjs"
   },
   "dependencies": {

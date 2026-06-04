@@ -68,6 +68,17 @@ npm run dev -- -p 3006
 
 If it still fails, check **Dashboard → Logs → Auth** for the underlying Google API error.
 
+## Diagnose from CLI
+
+```bash
+cd apps/web
+npm run diagnose:google-auth
+```
+
+As of the last check, Supabase uses Google client ID  
+`902963027413-7tlrpkpf5rqjq4tr469uaocot2es7ic4.apps.googleusercontent.com`  
+and Google **accepts** the Supabase callback redirect URI. If you still see **Unable to exchange external code**, the **Client Secret in Supabase is wrong** for that OAuth client — regenerate or re-copy it in Google Cloud, then re-paste in Supabase → Authentication → Google.
+
 ## CLI helper
 
 From repo root (requires `SUPABASE_ACCESS_TOKEN`):

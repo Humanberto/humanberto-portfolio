@@ -12,9 +12,11 @@ export function describeAuthError(
   if (reason === "google_exchange" || /exchange external code/i.test(reason ?? "")) {
     return [
       "Google sign-in failed while Supabase exchanged the authorization code.",
-      "Fix: Google Cloud Console → your OAuth client → Authorized redirect URIs must include",
-      "https://cdkmmduedxmpwxwbvwrd.supabase.co/auth/v1/callback",
-      "(not localhost). Then Supabase Dashboard → Authentication → Google: re-paste Client ID and Secret with no extra spaces.",
+      "The redirect URI is usually fine — this almost always means the Client Secret in Supabase",
+      "does not match the Google OAuth client (902963027413-…ic4.apps.googleusercontent.com).",
+      "Fix: Google Cloud → that OAuth client → create/copy Client Secret.",
+      "Then Supabase → Authentication → Google → re-paste Client ID and Secret with no extra spaces.",
+      "Redirect URI must be https://cdkmmduedxmpwxwbvwrd.supabase.co/auth/v1/callback.",
       "If the Google app is in Testing mode, add your email under Test users.",
     ].join(" ");
   }
