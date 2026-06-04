@@ -7,6 +7,7 @@ export {
   designSystemToCssVars,
   isHexColor,
   mergeDesignSystem,
+  mergeDesignSystemPatch,
   resolveProjectDesignSystem,
   sanitizeDesignSystem,
   sanitizeProjectDesignBinding,
@@ -19,6 +20,15 @@ export {
   type DesignSystemTypography,
   type ProjectDesignBinding,
 } from "./design-system";
+export {
+  emptyDesignSystemHistory,
+  MAX_DESIGN_SYSTEM_VERSIONS,
+  projectDesignScope,
+  SYSTEM_DESIGN_SCOPE,
+  type DesignSystemHistory,
+  type DesignSystemVersion,
+  type DesignSystemVersionPayload,
+} from "./design-system-versions";
 export { Button, type ButtonProps } from "./components/button";
 export { Card } from "./components/card";
 export { Badge } from "./components/badge";

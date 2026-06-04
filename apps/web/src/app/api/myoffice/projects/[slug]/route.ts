@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getAllProjects, saveAllProjects } from "@/lib/projects.server";
 import { parseProjectFields } from "@/lib/projects.parse";
+import { snapshotProjectDesignIfChanged } from "@/lib/design-system-versions.server";
+import { resolveOfficeContext } from "@/lib/tenant/office-context";
 import { slugifyTitle } from "@/lib/projects.shared";
 import type { AdminProject } from "@/lib/projects.shared";
 
@@ -49,9 +51,12 @@ export async function GET(_req: Request, { params }: Params) {
 }
 
 export async function PATCH(req: Request, { params }: Params) {
+  const ctx = await resolveOfficeContext();
+  if (!ctx) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { slug } = await params;
   const body = await req.json();
-  const existing = await getAllProjects();
+  const existing = await getAllProjects(ctx.tenantId);
   const idx = existing.findIndex((p) => p.slug === slug);
   if (idx < 0) return NextResponse.json({ error: "Not found." }, { status: 404 });
 
@@ -64,9 +69,11 @@ export async function PATCH(req: Request, { params }: Params) {
     return NextResponse.json({ error: "Slug already in use." }, { status: 409 });
   }
 
+  await snapshotProjectDesignIfChanged(updated, existing[idx], ctx.tenantId);
+
   const next = [...existing];
   next[idx] = updated;
-  const ok = await saveAllProjects(next);
+  const ok = await saveAllProjects(next, ctx.tenantId);
   if (!ok) return NextResponse.json({ error: "Save failed." }, { status: 500 });
   return NextResponse.json({ project: updated });
 }

@@ -164,6 +164,18 @@ export function isHexColor(value: string): boolean {
   return HEX_RE.test(value.trim());
 }
 
+function nonEmptyStringPatch<T extends Record<string, string>>(
+  patch?: Partial<T> | null,
+): Partial<T> | undefined {
+  if (!patch) return undefined;
+  const out: Partial<T> = {};
+  for (const key of Object.keys(patch) as (keyof T)[]) {
+    const trimmed = patch[key]?.trim();
+    if (trimmed) out[key] = trimmed as T[keyof T];
+  }
+  return Object.keys(out).length ? out : undefined;
+}
+
 function mergeButtonSize(
   base: DesignSystemButtonSize,
   patch?: Partial<DesignSystemButtonSize>,
@@ -176,39 +188,90 @@ function mergeButtonSize(
   };
 }
 
-/** Deep-merge a patch onto the base design system. */
+/** Deep-merge a patch onto the base design system. Never removes existing tokens. */
 export function mergeDesignSystem(
   base: DesignSystem,
   patch?: DesignSystemPatch | null,
 ): DesignSystem {
   if (!patch) return base;
 
-  const colors = { ...base.colors };
-  if (patch.colors) {
-    for (const [key, value] of Object.entries(patch.colors) as [
-      keyof DesignSystemColors,
-      string | undefined,
-    ][]) {
-      if (value?.trim() && isHexColor(value)) colors[key] = value.trim();
-    }
-  }
-
-  const typography = { ...base.typography, ...(patch.typography ?? {}) };
-  const buttons: DesignSystemButtons = {
-    borderRadius: patch.buttons?.borderRadius?.trim() || base.buttons.borderRadius,
-    sm: mergeButtonSize(base.buttons.sm, patch.buttons?.sm),
-    md: mergeButtonSize(base.buttons.md, patch.buttons?.md),
-    lg: mergeButtonSize(base.buttons.lg, patch.buttons?.lg),
-  };
-  const radii = { ...base.radii, ...(patch.radii ?? {}) };
-
   return {
     name: patch.name?.trim() || base.name,
     version: patch.version?.trim() || base.version,
-    colors,
-    typography,
-    buttons,
-    radii,
+    colors: { ...base.colors, ...filterColorPatch(patch.colors) },
+    typography: { ...base.typography, ...nonEmptyStringPatch(patch.typography) },
+    buttons: {
+      borderRadius: patch.buttons?.borderRadius?.trim() || base.buttons.borderRadius,
+      sm: mergeButtonSize(base.buttons.sm, patch.buttons?.sm),
+      md: mergeButtonSize(base.buttons.md, patch.buttons?.md),
+      lg: mergeButtonSize(base.buttons.lg, patch.buttons?.lg),
+    },
+    radii: { ...base.radii, ...nonEmptyStringPatch(patch.radii) },
+  };
+}
+
+function filterColorPatch(
+  patch?: Partial<DesignSystemColors> | null,
+): Partial<DesignSystemColors> | undefined {
+  if (!patch) return undefined;
+  const colors: Partial<DesignSystemColors> = {};
+  for (const [key, value] of Object.entries(patch) as [
+    keyof DesignSystemColors,
+    string | undefined,
+  ][]) {
+    if (value?.trim() && isHexColor(value)) colors[key] = value.trim();
+  }
+  return Object.keys(colors).length ? colors : undefined;
+}
+
+/** Merge partial patches — Studio agent uses this for per-project overrides. */
+export function mergeDesignSystemPatch(
+  base: DesignSystemPatch | undefined,
+  patch: DesignSystemPatch | undefined,
+): DesignSystemPatch | undefined {
+  if (!patch) return base;
+  if (!base) return patch;
+
+  const colors = filterColorPatch(patch.colors);
+  return {
+    name: patch.name?.trim() || base.name,
+    version: patch.version?.trim() || base.version,
+    colors: colors ? { ...base.colors, ...colors } : base.colors,
+    typography: patch.typography
+      ? { ...(base.typography ?? {}), ...nonEmptyStringPatch(patch.typography) }
+      : base.typography,
+    buttons: patch.buttons
+      ? {
+          ...base.buttons,
+          ...(patch.buttons.borderRadius?.trim()
+            ? { borderRadius: patch.buttons.borderRadius.trim() }
+            : {}),
+          sm:
+            patch.buttons.sm || base.buttons?.sm
+              ? mergeButtonSize(
+                  base.buttons?.sm ?? defaultDesignSystem.buttons.sm,
+                  patch.buttons.sm ?? base.buttons?.sm,
+                )
+              : base.buttons?.sm,
+          md:
+            patch.buttons.md || base.buttons?.md
+              ? mergeButtonSize(
+                  base.buttons?.md ?? defaultDesignSystem.buttons.md,
+                  patch.buttons.md ?? base.buttons?.md,
+                )
+              : base.buttons?.md,
+          lg:
+            patch.buttons.lg || base.buttons?.lg
+              ? mergeButtonSize(
+                  base.buttons?.lg ?? defaultDesignSystem.buttons.lg,
+                  patch.buttons.lg ?? base.buttons?.lg,
+                )
+              : base.buttons?.lg,
+        }
+      : base.buttons,
+    radii: patch.radii
+      ? { ...(base.radii ?? {}), ...nonEmptyStringPatch(patch.radii) }
+      : base.radii,
   };
 }
 

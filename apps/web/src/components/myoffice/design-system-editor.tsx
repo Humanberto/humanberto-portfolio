@@ -14,6 +14,7 @@ import {
 } from "@humanberto/ui";
 import { DesignSystemPresentation } from "./design-system-presentation";
 import { DesignSystemPrintButton } from "./design-system-print-button";
+import { DesignSystemVersionPanel } from "./design-system-version-panel";
 
 type Tab = "colors" | "typography" | "buttons" | "radii" | "preview";
 
@@ -81,10 +82,54 @@ export function DesignSystemEditor() {
     setStatus("Saved. Refresh the public site to see changes.");
   }
 
+  async function unifyAllProjects() {
+    if (
+      !confirm(
+        "Heal the site-wide design system and reset every project to use it? Custom project themes will be removed (saved as versions first).",
+      )
+    ) {
+      return;
+    }
+    setStatus("Unifying all projects to system…");
+    const res = await fetch("/api/myoffice/design/versions", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "unify" }),
+    });
+    if (!res.ok) {
+      const err = (await res.json()) as { error?: string };
+      setStatus(err.error ?? "Unify failed.");
+      return;
+    }
+    const data = (await res.json()) as { global: DesignSystem; projectsUpdated: number };
+    setDraft(data.global);
+    setStatus(
+      `Unified. ${data.projectsUpdated} project(s) now use the site system. Refresh the public site to see changes.`,
+    );
+  }
+
   function resetDefaults() {
-    if (!confirm("Reset the global design system to code defaults?")) return;
+    if (!confirm("Reset the global design system to code defaults? A version snapshot is saved first when you save.")) return;
     setDraft(defaultDesignSystem);
-    setStatus("Reset to defaults — click Save to persist.");
+    setStatus("Reset to code defaults in editor — click Save system to persist.");
+  }
+
+  async function resetToCodeDefaultsNow() {
+    if (!confirm("Reset the live site-wide system to code defaults? Current system is snapshotted first.")) return;
+    setStatus("Resetting…");
+    const res = await fetch("/api/myoffice/design/versions", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "reset-defaults" }),
+    });
+    if (!res.ok) {
+      const err = (await res.json()) as { error?: string };
+      setStatus(err.error ?? "Reset failed.");
+      return;
+    }
+    const data = (await res.json()) as { system: DesignSystem };
+    setDraft(data.system);
+    setStatus("Reset to code defaults.");
   }
 
   if (loading) return <p className="text-white/60">Loading design system…</p>;
@@ -101,10 +146,9 @@ export function DesignSystemEditor() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="font-display text-2xl">Design system</h2>
+          <h2 className="font-display text-2xl">Site system</h2>
           <p className="mt-1 text-sm text-white/60">
-            Edit once — colors, type, buttons, and radii apply site-wide. Projects can inherit or
-            override.
+            The overall website design. Projects inherit this unless they use a custom theme.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -118,10 +162,24 @@ export function DesignSystemEditor() {
           <DesignSystemPrintButton />
           <button
             type="button"
+            onClick={() => void unifyAllProjects()}
+            className="rounded-full border border-white/20 px-4 py-2 text-sm hover:bg-white/5"
+          >
+            Unify all projects
+          </button>
+          <button
+            type="button"
             onClick={resetDefaults}
             className="rounded-full border border-white/20 px-4 py-2 text-sm hover:bg-white/5"
           >
-            Reset defaults
+            Edit → code defaults
+          </button>
+          <button
+            type="button"
+            onClick={() => void resetToCodeDefaultsNow()}
+            className="rounded-full border border-white/20 px-4 py-2 text-sm hover:bg-white/5"
+          >
+            Reset to code defaults
           </button>
           <button
             type="button"
@@ -132,6 +190,8 @@ export function DesignSystemEditor() {
           </button>
         </div>
       </div>
+
+      <DesignSystemVersionPanel scope="system" onRestored={() => void refresh()} />
 
       <div className="flex flex-wrap gap-2 border-b border-white/10 pb-2">
         {tabs.map((t) => (
@@ -328,11 +388,15 @@ function MetaFields({
 export function ProjectDesignSystemFields({
   binding,
   globalSystem,
+  projectSlug,
   onChange,
+  onRestored,
 }: {
   binding?: { mode: "inherit" | "custom"; overrides?: DesignSystemPatch };
   globalSystem: DesignSystem;
+  projectSlug: string;
   onChange: (binding: { mode: "inherit" | "custom"; overrides?: DesignSystemPatch }) => void;
+  onRestored?: () => void;
 }) {
   const mode = binding?.mode ?? "inherit";
   const overrides = binding?.overrides;
@@ -369,7 +433,7 @@ export function ProjectDesignSystemFields({
       <p className="text-xs text-white/50">
         Inherit the global system or define project-specific colors and button radius.
       </p>
-      <div className="flex gap-4 text-sm">
+      <div className="flex flex-wrap items-center gap-3 text-sm">
         <label className="flex items-center gap-2">
           <input
             type="radio"
@@ -377,7 +441,7 @@ export function ProjectDesignSystemFields({
             checked={mode === "inherit"}
             onChange={() => setMode("inherit")}
           />
-          Use site system
+          System (site-wide)
         </label>
         <label className="flex items-center gap-2">
           <input
@@ -388,6 +452,15 @@ export function ProjectDesignSystemFields({
           />
           Custom for this project
         </label>
+        {mode === "custom" && (
+          <button
+            type="button"
+            onClick={() => setMode("inherit")}
+            className="rounded-full border border-white/20 px-3 py-1 text-xs hover:bg-white/5"
+          >
+            Reset to system
+          </button>
+        )}
       </div>
       {mode === "custom" && (
         <>
@@ -423,10 +496,16 @@ export function ProjectDesignSystemFields({
             href="/myoffice/design"
             className="inline-block text-xs text-white/50 underline hover:text-white"
           >
-            Edit full global system →
+            Edit full site system →
           </Link>
         </>
       )}
+
+      <DesignSystemVersionPanel
+        scope="project"
+        projectSlug={projectSlug}
+        onRestored={onRestored}
+      />
     </div>
   );
 }

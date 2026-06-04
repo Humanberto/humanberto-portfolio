@@ -613,9 +613,25 @@ export function ProjectCrm() {
               <ProjectDesignSystemFields
                 binding={draft.designSystem}
                 globalSystem={globalDesign}
+                projectSlug={(draft.slug.trim() || slugifyTitle(draft.title)).toLowerCase()}
                 onChange={(binding) =>
                   setDraft((d) => (d ? { ...d, designSystem: binding } : d))
                 }
+                onRestored={async () => {
+                  const res = await fetch("/api/myoffice/projects");
+                  if (res.ok) {
+                    const data = (await res.json()) as { projects: AdminProject[] };
+                    setProjects(data.projects);
+                    const slug = (draft.slug.trim() || slugifyTitle(draft.title)).toLowerCase();
+                    const updated = data.projects.find((p) => p.slug === slug);
+                    if (updated) setDraft(updated);
+                  }
+                  const designRes = await fetch("/api/myoffice/design");
+                  if (designRes.ok) {
+                    const designData = (await designRes.json()) as { system: DesignSystem };
+                    setGlobalDesign(designData.system);
+                  }
+                }}
               />
             )}
 

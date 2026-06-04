@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getAllProjects, saveAllProjects } from "@/lib/projects.server";
 import { parseProjectFields } from "@/lib/projects.parse";
+import { snapshotProjectDesignIfChanged } from "@/lib/design-system-versions.server";
+import { resolveOfficeContext } from "@/lib/tenant/office-context";
 import {
   emptyProject,
   slugifyTitle,
@@ -47,11 +49,15 @@ export async function GET() {
 }
 
 export async function PUT(req: Request) {
+  const ctx = await resolveOfficeContext();
+  if (!ctx) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const body = (await req.json()) as { projects?: unknown[] };
   if (!Array.isArray(body.projects)) {
     return NextResponse.json({ error: "Expected projects array." }, { status: 400 });
   }
 
+  const existing = await getAllProjects(ctx.tenantId);
   const parsed: AdminProject[] = [];
   const slugs = new Set<string>();
 
@@ -70,7 +76,12 @@ export async function PUT(req: Request) {
     parsed.push(project);
   }
 
-  const ok = await saveAllProjects(parsed);
+  for (const project of parsed) {
+    const prev = existing.find((p) => p.slug === project.slug);
+    await snapshotProjectDesignIfChanged(project, prev, ctx.tenantId);
+  }
+
+  const ok = await saveAllProjects(parsed, ctx.tenantId);
   if (!ok) {
     return NextResponse.json({ error: "Save failed. Check Supabase config." }, { status: 500 });
   }

@@ -8,7 +8,8 @@ export type ContentKey =
   | "advocate_prompt"
   | "advocate_facts"
   | "projects"
-  | "design_system";
+  | "design_system"
+  | "design_system_history";
 
 async function resolveTenantId(tenantId?: string): Promise<string> {
   if (tenantId?.trim()) return tenantId.trim();
