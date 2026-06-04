@@ -1,6 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { ADMIN_COOKIE, verifyAdminSession } from "@/lib/admin/session";
+import { isLocalDevHost } from "@/lib/auth/site-url";
+
+const PRODUCTION_ORIGIN = "https://www.humanberto.com";
 
 const OFFICE_PREFIX = "/myoffice";
 const LOGIN_PATH = `${OFFICE_PREFIX}/login`;
@@ -44,9 +47,13 @@ export async function middleware(request: NextRequest) {
   const oauthError = searchParams.get("error");
   const errorDescription = searchParams.get("error_description") ?? "";
 
-  // Supabase OAuth failures redirect to Site URL with ?error=… (blank homepage today).
+  // Supabase OAuth failures redirect to Site URL with ?error=… — never leave users on localhost.
   if (oauthError && pathname !== "/signup") {
-    const signup = new URL("/signup", request.url);
+    const signupBase =
+      isLocalDevHost(request.nextUrl.hostname) && process.env.VERCEL_ENV !== "development"
+        ? PRODUCTION_ORIGIN
+        : request.nextUrl.origin;
+    const signup = new URL("/signup", signupBase);
     signup.searchParams.set("error", "oauth");
     if (/exchange external code/i.test(errorDescription)) {
       signup.searchParams.set("reason", "google_exchange");

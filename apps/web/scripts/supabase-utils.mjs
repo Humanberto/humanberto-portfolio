@@ -7,6 +7,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export const webRoot = join(__dirname, "..");
 export const repoRoot = join(webRoot, "..", "..");
 
+/** Supabase Auth Site URL — must never be localhost (OAuth errors redirect here). */
+export const PRODUCTION_SITE_URL = "https://www.humanberto.com";
+
 export function readEnvLocal(key) {
   const envPath = join(webRoot, ".env.local");
   if (!existsSync(envPath)) return null;
@@ -111,11 +114,11 @@ export async function fetchAnonKey(api, ref) {
   throw new Error("Could not fetch anon API key.");
 }
 
-export function authRedirectUrls(siteUrl) {
+export function authRedirectUrls(siteUrl = PRODUCTION_SITE_URL) {
   const urls = new Set([
-    `${siteUrl}/auth/callback`,
+    `${PRODUCTION_SITE_URL}/auth/callback`,
     "https://humanberto.com/auth/callback",
-    "https://www.humanberto.com/auth/callback",
+    `${siteUrl.replace(/\/$/, "")}/auth/callback`,
     "http://localhost:3000/auth/callback",
     "http://localhost:3001/auth/callback",
     "http://localhost:3005/auth/callback",

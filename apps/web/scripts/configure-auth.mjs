@@ -16,6 +16,7 @@
 
 import { spawnSync } from "node:child_process";
 import {
+  PRODUCTION_SITE_URL,
   addVercelEnv,
   authRedirectUrls,
   createSupabaseApi,
@@ -27,7 +28,20 @@ import {
 } from "./supabase-utils.mjs";
 
 const TOKEN = process.env.SUPABASE_ACCESS_TOKEN;
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? readEnvLocal("NEXT_PUBLIC_SITE_URL") ?? "https://humanberto.com").replace(/\/$/, "");
+/** Supabase Site URL — always production; localhost belongs in additional_redirect_urls only. */
+const SUPABASE_SITE_URL = (
+  process.env.SUPABASE_SITE_URL ??
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  PRODUCTION_SITE_URL
+)
+  .replace(/\/$/, "")
+  .replace(/^http:\/\/localhost(?::\d+)?$/i, PRODUCTION_SITE_URL);
+if (/^http:\/\/localhost/i.test(SUPABASE_SITE_URL)) {
+  throw new Error(
+    `Refusing to set Supabase Site URL to localhost (${SUPABASE_SITE_URL}). ` +
+      `Use ${PRODUCTION_SITE_URL} and keep localhost in redirect URLs only.`,
+  );
+}
 
 function argValue(flag) {
   const hit = process.argv.find((a) => a.startsWith(`${flag}=`));
@@ -37,9 +51,9 @@ function argValue(flag) {
 function printManualAuthSteps(ref) {
   console.log(`
 Manual Supabase Auth setup (Dashboard → Authentication → URL Configuration):
-  Site URL:              ${SITE_URL}
+  Site URL:              ${SUPABASE_SITE_URL}
   Redirect URLs (add each):
-${authRedirectUrls(SITE_URL)
+${authRedirectUrls(SUPABASE_SITE_URL)
   .map((u) => `    - ${u}`)
   .join("\n")}
 
@@ -94,8 +108,8 @@ async function main() {
       }
 
       const authPatch = {
-        site_url: SITE_URL,
-        additional_redirect_urls: authRedirectUrls(SITE_URL),
+        site_url: SUPABASE_SITE_URL,
+        additional_redirect_urls: authRedirectUrls(SUPABASE_SITE_URL),
         disable_signup: false,
         external_email_enabled: true,
         mailer_autoconfirm: true,
@@ -137,12 +151,12 @@ async function main() {
   upsertEnvLocal("NEXT_PUBLIC_SUPABASE_URL", url);
   upsertEnvLocal("NEXT_PUBLIC_SUPABASE_ANON_KEY", anonKey);
   if (!readEnvLocal("NEXT_PUBLIC_SITE_URL")) {
-    upsertEnvLocal("NEXT_PUBLIC_SITE_URL", SITE_URL);
+    upsertEnvLocal("NEXT_PUBLIC_SITE_URL", "http://localhost:3006");
   }
 
   console.log("\nSyncing Vercel environment variables…");
   addVercelEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", anonKey);
-  addVercelEnv("NEXT_PUBLIC_SITE_URL", SITE_URL);
+  addVercelEnv("NEXT_PUBLIC_SITE_URL", PRODUCTION_SITE_URL);
 
   await applyMigrations();
 

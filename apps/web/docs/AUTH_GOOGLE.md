@@ -28,12 +28,20 @@ If SSO lands on a blank page or shows **Unable to exchange external code**, Supa
 
 [Authentication → URL Configuration](https://supabase.com/dashboard/project/cdkmmduedxmpwxwbvwrd/auth/url-configuration)
 
-| Setting | Production | Local dev |
-|---------|------------|-----------|
-| **Site URL** | `https://www.humanberto.com` | `http://localhost:3006` |
-| **Redirect URLs** | `https://www.humanberto.com/auth/callback` | `http://localhost:3006/auth/callback` |
+**Critical:** **Site URL must be production**, not localhost. Supabase sends OAuth failures (and some successes) to Site URL — if it is `http://localhost:3006`, production users land on a blank local page.
 
-Add every port you use locally (3000, 3001, 3006, etc.).
+| Setting | Value |
+|---------|--------|
+| **Site URL** | `https://www.humanberto.com` |
+| **Redirect URLs** | `https://www.humanberto.com/auth/callback`, `https://humanberto.com/auth/callback`, plus local dev ports below |
+
+Add every port you use locally (3000, 3001, 3006, etc.) under **Redirect URLs** only — never as Site URL:
+
+```text
+http://localhost:3006/auth/callback
+```
+
+Do **not** run `npm run setup:auth` with `NEXT_PUBLIC_SITE_URL=http://localhost:…` unless you also set `SUPABASE_SITE_URL=https://www.humanberto.com`.
 
 ## 4. Local `.env.local`
 
