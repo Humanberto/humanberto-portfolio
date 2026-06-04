@@ -5,6 +5,25 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { createAuthClient } from "@/lib/auth/client";
 import { authCallbackUrl } from "@/lib/auth/redirect";
+import { defaultPostAuthPath } from "@/lib/auth/post-auth";
+
+async function redirectAfterSession(next: string) {
+  const res = await fetch("/api/platform/tenant");
+  if (res.ok) {
+    const data = (await res.json()) as { tenant?: { slug: string } };
+    if (data.tenant?.slug) {
+      window.location.href = defaultPostAuthPath({
+        id: "",
+        slug: data.tenant.slug,
+        display_name: "",
+        status: "active",
+        research_completed_at: null,
+      });
+      return;
+    }
+  }
+  window.location.href = next === "/myoffice/studio" ? "/onboarding" : next;
+}
 
 function SignupForm() {
   const searchParams = useSearchParams();
@@ -54,12 +73,12 @@ function SignupForm() {
         },
       });
       if (err) setError(err.message);
-      else if (data.session) window.location.href = next;
+      else if (data.session) await redirectAfterSession(next);
       else setNotice("Check your email to confirm your account, then sign in.");
     } else {
       const { error: err } = await supabase.auth.signInWithPassword({ email, password });
       if (err) setError(err.message);
-      else window.location.href = next;
+      else await redirectAfterSession(next);
     }
     setLoading(false);
   }

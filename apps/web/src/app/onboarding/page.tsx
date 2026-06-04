@@ -2,8 +2,24 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { defaultPostAuthPath } from "@/lib/auth/post-auth";
+import { tenantPublicPath } from "@/lib/tenant/constants";
 import { PLATFORM_RESEARCH } from "@/lib/platform/research";
 import { createAuthClient } from "@/lib/auth/client";
+
+async function resolveClientPostAuthPath(): Promise<string> {
+  const res = await fetch("/api/platform/tenant");
+  if (!res.ok) return "/onboarding";
+  const data = (await res.json()) as { tenant?: { slug: string } };
+  if (!data.tenant?.slug) return "/onboarding";
+  return defaultPostAuthPath({
+    id: "",
+    slug: data.tenant.slug,
+    display_name: "",
+    status: "active",
+    research_completed_at: null,
+  });
+}
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -24,7 +40,7 @@ export default function OnboardingPage() {
       }
       const tenantRes = await fetch("/api/platform/tenant");
       if (tenantRes.ok) {
-        router.replace("/myoffice/studio");
+        router.replace(await resolveClientPostAuthPath());
         return;
       }
       const meta = user.user_metadata as { full_name?: string };
@@ -48,7 +64,8 @@ export default function OnboardingPage() {
       setError(body.error ?? "Setup failed.");
       return;
     }
-    router.replace("/myoffice/studio");
+    const data = (await res.json()) as { tenant?: { slug: string } };
+    router.replace(data.tenant?.slug ? tenantPublicPath(data.tenant.slug) : "/onboarding");
     router.refresh();
   }
 

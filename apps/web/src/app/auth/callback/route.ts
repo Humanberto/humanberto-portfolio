@@ -3,19 +3,13 @@ import {
   applyPendingCookies,
   createAuthServerClientForRequest,
 } from "@/lib/auth/server";
+import { resolvePostAuthPath } from "@/lib/auth/post-auth";
 import { getTenantsForUser } from "@/lib/tenant/server";
 import { TENANT_COOKIE } from "@/lib/tenant/office-context";
-
-function safeNextPath(raw: string | null): string {
-  const next = raw ?? "/onboarding";
-  if (!next.startsWith("/") || next.startsWith("//")) return "/onboarding";
-  return next;
-}
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
   const code = searchParams.get("code");
-  let next = safeNextPath(searchParams.get("next"));
 
   if (!code) {
     return NextResponse.redirect(`${origin}/signup?error=auth_callback`);
@@ -35,12 +29,17 @@ export async function GET(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  let next = resolvePostAuthPath(undefined, searchParams.get("next"));
+
   if (user) {
     const tenants = await getTenantsForUser(user.id);
-    if (tenants[0]) {
+    const tenant = tenants[0];
+    next = resolvePostAuthPath(tenant, searchParams.get("next"));
+
+    if (tenant) {
       pendingCookies.push({
         name: TENANT_COOKIE,
-        value: tenants[0].id,
+        value: tenant.id,
         options: {
           httpOnly: true,
           sameSite: "lax",
@@ -49,7 +48,6 @@ export async function GET(request: NextRequest) {
           maxAge: 60 * 60 * 24 * 365,
         },
       });
-      if (next === "/onboarding") next = "/myoffice/studio";
     }
   }
 
