@@ -11,6 +11,7 @@ import {
   applyStudioPatch,
   loadProjectStudioState,
   loadStudioState,
+  normalizeProjectStudioPatch,
   type ProjectStudioPatch,
   type StudioPatch,
 } from "@/lib/studio/agent";
@@ -114,13 +115,22 @@ Current site role: ${(state as Awaited<ReturnType<typeof loadStudioState>>).site
         tools: {
           applyStudioPatch: tool({
             description: isProjectMode
-              ? "Apply case study copy and/or per-project design changes"
-              : "Apply design system and/or site copy changes",
+              ? "Apply case study copy and/or per-project design overrides only. Put all design token changes under project.designSystem.overrides — never at the root designSystem key."
+              : "Apply design system and/or site copy changes. Only include design tokens you want to change — never omit or clear unchanged tokens.",
             inputSchema: studioPatchSchema,
             execute: async (patch) => {
               if (isProjectMode) {
-                if (patch.project) {
-                  appliedProjectPatch = patch.project as ProjectStudioPatch;
+                if (patch.designSystem && !patch.project?.designSystem) {
+                  console.warn(
+                    "[studio] Routed root designSystem patch to project overrides (project mode)",
+                  );
+                }
+                if (patch.site) {
+                  console.warn("[studio] Ignored site patch in project mode");
+                }
+                const normalized = normalizeProjectStudioPatch(patch as StudioPatch);
+                if (normalized) {
+                  appliedProjectPatch = normalized;
                 }
               } else {
                 appliedSitePatch = patch as StudioPatch;

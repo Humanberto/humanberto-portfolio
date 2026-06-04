@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import Link from "next/link";
 import { createAuthClient } from "@/lib/auth/client";
+import { authCallbackUrl } from "@/lib/auth/redirect";
 
 function SignupForm() {
   const searchParams = useSearchParams();
@@ -24,7 +25,7 @@ function SignupForm() {
     setNotice("");
     try {
       const supabase = createAuthClient();
-      const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
+      const redirectTo = authCallbackUrl(next);
       const { error: err } = await supabase.auth.signInWithOAuth({
         provider,
         options: { redirectTo },
@@ -49,7 +50,7 @@ function SignupForm() {
         password,
         options: {
           data: { full_name: name },
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+          emailRedirectTo: authCallbackUrl(next),
         },
       });
       if (err) setError(err.message);

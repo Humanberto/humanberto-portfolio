@@ -1,6 +1,7 @@
 import "server-only";
 import {
   mergeDesignSystem,
+  mergeDesignSystemPatch,
   resolveProjectDesignSystem,
   sanitizeDesignSystem,
   sanitizeProjectDesignBinding,
@@ -85,22 +86,60 @@ export async function loadProjectStudioState(
 }
 
 function mergeProjectPatch(project: AdminProject, patch: ProjectStudioPatch): AdminProject {
-  const next: AdminProject = { ...project, ...patch };
-  if (patch.designSystem) {
-    const current = project.designSystem;
-    const binding = patch.designSystem;
-    next.designSystem = sanitizeProjectDesignBinding({
-      mode: binding.mode ?? current?.mode ?? "inherit",
-      overrides:
-        binding.mode === "custom" || current?.mode === "custom"
-          ? {
-              ...(current?.mode === "custom" ? current.overrides : {}),
-              ...binding.overrides,
-            }
-          : undefined,
-    });
+  const { designSystem: designPatch, ...copyPatch } = patch;
+  const next: AdminProject = { ...project, ...copyPatch };
+
+  if (!designPatch) return next;
+
+  // Agent must not reset to inherit or wipe overrides — only merge color/style changes.
+  const overridePatch = designPatch.overrides;
+  const wantsCustom =
+    Boolean(overridePatch && Object.keys(overridePatch).length > 0) ||
+    designPatch.mode === "custom";
+
+  if (!wantsCustom || designPatch.mode === "inherit") {
+    return next;
   }
+
+  const priorOverrides =
+    project.designSystem?.mode === "custom" ? project.designSystem.overrides : undefined;
+
+  const mergedOverrides = mergeDesignSystemPatch(priorOverrides, overridePatch);
+
+  if (!mergedOverrides) return next;
+
+  next.designSystem = sanitizeProjectDesignBinding({
+    mode: "custom",
+    overrides: mergedOverrides,
+  });
+
   return next;
+}
+
+export function normalizeProjectStudioPatch(patch: StudioPatch): ProjectStudioPatch | null {
+  const result: ProjectStudioPatch = { ...(patch.project ?? {}) };
+
+  // LLMs often put color changes at the root — route them to per-project overrides only.
+  if (patch.designSystem) {
+    const overrides = mergeDesignSystemPatch(
+      result.designSystem?.overrides,
+      patch.designSystem,
+    );
+    if (overrides) {
+      result.designSystem = { mode: "custom", overrides };
+    }
+  }
+
+  if (result.designSystem?.overrides) {
+    result.designSystem = {
+      mode: "custom",
+      overrides: result.designSystem.overrides,
+    };
+  } else if (result.designSystem?.mode === "inherit") {
+    delete result.designSystem;
+  }
+
+  return Object.keys(result).length > 0 ? result : null;
 }
 
 export async function applyProjectStudioPatch(
@@ -136,6 +175,8 @@ export async function applyStudioPatch(
     await setContentOverride("site", site, tenantId);
   }
 
+  // project patches are only applied in project mode — never from site scope
+
   return {
     scope: "site",
     designSystem: sanitizeDesignSystem(designSystem),
@@ -150,12 +191,23 @@ Help the user refine their design system (colors, typography, button radii) and 
 When you have concrete changes, call applyStudioPatch with a JSON patch. Use hex colors only.
 Keep suggestions focused and shippable. Ask clarifying questions when needed.
 
-Do not invent projects or experience — only edit what they ask for.`;
+CRITICAL — design system rules:
+- Only include fields you want to CHANGE in designSystem patches (partial updates).
+- NEVER omit, clear, or reset color tokens, typography, buttons, or radii you are not changing.
+- NEVER send empty strings or null values for design tokens.
+- Do not invent projects or experience — only edit what they ask for.`;
 
 export const PROJECT_STUDIO_SYSTEM_PROMPT = `You are Humanberto Studio Agent — helping refine a single portfolio case study project.
 
-You can edit project copy (title, tagline, summary, problem, approach, outcomes, stack, role) and per-project design overrides (set designSystem.mode to "custom" with color/typography overrides for a distinct case study look).
+You can edit project copy (title, tagline, summary, problem, approach, outcomes, stack, role) and per-project design overrides (project.designSystem.mode must be "custom" with overrides for colors/typography).
 
 When you have concrete changes, call applyStudioPatch with a project patch. Use hex colors only for design overrides.
 Keep copy honest — do not invent metrics, clients, or outcomes the user did not describe.
-For approach and outcomes, provide full string arrays when updating those fields.`;
+For approach and outcomes, provide full string arrays when updating those fields.
+
+CRITICAL — design system rules:
+- NEVER modify the site-wide design system. Only patch project.designSystem.overrides.
+- NEVER set mode to "inherit" or remove design overrides — that drops the project's custom look.
+- Only include color/typography/button/radii fields you want to CHANGE (partial patches).
+- NEVER omit, clear, or reset tokens you are not changing. NEVER send empty strings.
+- Example color patch: { "project": { "designSystem": { "mode": "custom", "overrides": { "colors": { "gold": "#C4A035", "purple": "#5B21B6" } } } } }`;

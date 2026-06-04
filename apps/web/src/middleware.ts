@@ -40,6 +40,17 @@ async function hasOfficeAccess(request: NextRequest): Promise<boolean> {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const code = request.nextUrl.searchParams.get("code");
+
+  // Supabase sometimes redirects to Site URL root (?code=...) instead of /auth/callback.
+  if (code && pathname !== "/auth/callback") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/callback";
+    if (!url.searchParams.has("next")) {
+      url.searchParams.set("next", "/onboarding");
+    }
+    return NextResponse.redirect(url);
+  }
 
   if (PUBLIC_AUTH_PATHS.has(pathname) || pathname.startsWith("/auth/")) {
     return NextResponse.next();
@@ -77,6 +88,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    "/",
     "/myoffice/:path*",
     "/api/myoffice/:path*",
     "/signup",

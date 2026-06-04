@@ -21,8 +21,10 @@ enabled = false
 site_url = "https://humanberto.com"
 additional_redirect_urls = [
   "https://humanberto.com/auth/callback",
+  "https://www.humanberto.com/auth/callback",
   "http://localhost:3000/auth/callback",
   "http://localhost:3001/auth/callback",
   "http://localhost:3005/auth/callback",
+  "http://localhost:3006/auth/callback",
   "https://*.vercel.app/auth/callback",
 ]

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { sanitizeDesignSystem } from "@humanberto/ui";
+import { mergeDesignSystem } from "@humanberto/ui";
 import { getGlobalDesignSystem, saveGlobalDesignSystem } from "@/lib/design-system.server";
 
 export async function GET() {
@@ -13,7 +13,8 @@ export async function PUT(req: Request) {
     return NextResponse.json({ error: "Missing system." }, { status: 400 });
   }
 
-  const system = sanitizeDesignSystem(body.system);
+  const existing = await getGlobalDesignSystem();
+  const system = mergeDesignSystem(existing, body.system as Parameters<typeof mergeDesignSystem>[1]);
   const ok = await saveGlobalDesignSystem(system);
   if (!ok) {
     return NextResponse.json({ error: "Save failed. Check Supabase config." }, { status: 500 });

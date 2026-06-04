@@ -114,9 +114,12 @@ export async function fetchAnonKey(api, ref) {
 export function authRedirectUrls(siteUrl) {
   const urls = new Set([
     `${siteUrl}/auth/callback`,
+    "https://humanberto.com/auth/callback",
+    "https://www.humanberto.com/auth/callback",
     "http://localhost:3000/auth/callback",
     "http://localhost:3001/auth/callback",
     "http://localhost:3005/auth/callback",
+    "http://localhost:3006/auth/callback",
     "https://*.vercel.app/auth/callback",
   ]);
 
