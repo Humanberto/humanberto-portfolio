@@ -42,6 +42,12 @@ npm run lint
 npm run typecheck
 ```
 
+## Git commits and pushes
+
+Use [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, etc.).
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for branch workflow, commit examples, and push commands.
+Commit messages are checked automatically via Husky + Commitlint after `npm install`.
+
 ## Design tokens
 
 The brand palette (near-black ink, deep purple, gold) is defined once in
