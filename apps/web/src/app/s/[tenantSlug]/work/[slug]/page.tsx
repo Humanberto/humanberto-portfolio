@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Button, Container, resolveProjectDesignSystem } from "@humanberto/ui";
 import { StatusPill } from "@/components/work/status-pill";
 import { ProjectGallery } from "@/components/work/project-gallery";
+import { ProjectCoverImage } from "@/components/work/project-image-lightbox";
 import { ProjectProcessTimeline } from "@/components/work/project-process-timeline";
 import { ProjectVideos } from "@/components/work/project-videos";
 import { DesignSystemStyles } from "@/components/theme/design-system-styles";
@@ -80,14 +81,7 @@ export default async function TenantCaseStudy({
         <p className="mt-3 text-sm text-faint">{project.role}</p>
 
         {project.coverImage && (
-          <div className="mt-10 overflow-hidden rounded-2xl border border-line">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={project.coverImage}
-              alt=""
-              className="aspect-[16/9] w-full object-cover"
-            />
-          </div>
+          <ProjectCoverImage src={project.coverImage} alt={project.title} className="mt-10" />
         )}
 
         {externalLinks.length > 0 ? (

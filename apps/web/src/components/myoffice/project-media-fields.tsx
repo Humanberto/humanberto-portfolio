@@ -132,8 +132,10 @@ export function ProjectMediaFields({
               </label>
             )}
             {item.url && kind === "image" && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={item.url} alt="" className="mt-2 max-h-28 rounded-lg object-cover" />
+              <div className="mt-2 flex max-h-28 items-center justify-center overflow-hidden rounded-lg border border-white/10 bg-black/20">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={item.url} alt="" className="max-h-28 max-w-full object-contain" />
+              </div>
             )}
           </li>
         ))}

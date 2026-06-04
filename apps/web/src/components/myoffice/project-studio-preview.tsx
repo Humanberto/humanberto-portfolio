@@ -1,6 +1,7 @@
 "use client";
 
 import { DesignSystemPresentation } from "@/components/myoffice/design-system-presentation";
+import { ProjectCoverImage } from "@/components/work/project-image-lightbox";
 import type { AdminProject } from "@/lib/projects.shared";
 import type { DesignSystem } from "@humanberto/ui";
 
@@ -42,8 +43,7 @@ export function ProjectStudioPreview({
 
       {project.coverImage && (
         <div className="border-b border-line">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={project.coverImage} alt="" className="aspect-video w-full object-cover" />
+          <ProjectCoverImage src={project.coverImage} alt={project.title} className="rounded-none border-0" />
         </div>
       )}
 

@@ -71,12 +71,14 @@ export function ProjectRichContent({ draft, setDraft, projectSlug, onUploadError
           </label>
         </div>
         {draft.coverImage && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={draft.coverImage}
-            alt=""
-            className="mt-3 max-h-40 rounded-xl border border-white/10 object-cover"
-          />
+          <div className="mt-3 max-h-48 overflow-hidden rounded-xl border border-white/10 bg-black/20">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={draft.coverImage}
+              alt=""
+              className="mx-auto max-h-48 w-full object-contain"
+            />
+          </div>
         )}
       </section>
 
