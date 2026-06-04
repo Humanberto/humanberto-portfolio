@@ -1,11 +1,12 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { createAuthClient } from "@/lib/auth/client";
 import { authCallbackUrl } from "@/lib/auth/redirect";
 import { defaultPostAuthPath } from "@/lib/auth/post-auth";
+import { describeAuthError } from "@/lib/auth/errors";
 
 async function redirectAfterSession(next: string) {
   const res = await fetch("/api/platform/tenant");
@@ -29,14 +30,40 @@ function SignupForm() {
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "/onboarding";
   const authError = searchParams.get("error");
+  const authReason = searchParams.get("reason");
 
   const [mode, setMode] = useState<"signup" | "signin">("signup");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(authError ? "Sign-in failed. Try again." : "");
+  const [error, setError] = useState(
+    () => describeAuthError(authError, authReason) ?? "",
+  );
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fromQuery = describeAuthError(authError, authReason);
+    if (fromQuery) {
+      setError(fromQuery);
+      return;
+    }
+
+    // Supabase may append errors in the URL hash after redirect.
+    const hash = window.location.hash.replace(/^#/, "");
+    if (!hash) return;
+    const params = new URLSearchParams(hash);
+    const hashError = params.get("error");
+    const hashDesc = params.get("error_description");
+    const msg = describeAuthError(
+      hashError,
+      hashDesc && /exchange external code/i.test(hashDesc) ? "google_exchange" : hashDesc,
+    );
+    if (msg) {
+      setError(msg);
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
+  }, [authError, authReason]);
 
   async function oauth(provider: "google" | "github") {
     setLoading(true);
@@ -47,7 +74,10 @@ function SignupForm() {
       const redirectTo = authCallbackUrl(next);
       const { error: err } = await supabase.auth.signInWithOAuth({
         provider,
-        options: { redirectTo },
+        options: {
+          redirectTo,
+          queryParams: provider === "google" ? { prompt: "select_account" } : undefined,
+        },
       });
       if (err) setError(err.message);
     } catch {

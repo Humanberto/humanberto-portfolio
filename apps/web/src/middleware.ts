@@ -39,8 +39,22 @@ async function hasOfficeAccess(request: NextRequest): Promise<boolean> {
 }
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  const code = request.nextUrl.searchParams.get("code");
+  const { pathname, searchParams } = request.nextUrl;
+  const code = searchParams.get("code");
+  const oauthError = searchParams.get("error");
+  const errorDescription = searchParams.get("error_description") ?? "";
+
+  // Supabase OAuth failures redirect to Site URL with ?error=… (blank homepage today).
+  if (oauthError && pathname !== "/signup") {
+    const signup = new URL("/signup", request.url);
+    signup.searchParams.set("error", "oauth");
+    if (/exchange external code/i.test(errorDescription)) {
+      signup.searchParams.set("reason", "google_exchange");
+    } else if (errorDescription) {
+      signup.searchParams.set("reason", errorDescription.slice(0, 200));
+    }
+    return NextResponse.redirect(signup);
+  }
 
   // Supabase sometimes redirects to Site URL root (?code=...) instead of /auth/callback.
   if (code && pathname !== "/auth/callback") {
