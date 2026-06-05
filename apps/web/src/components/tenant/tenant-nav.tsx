@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Button, cn, Container } from "@humanberto/ui";
+import { useFeatureVisible, useSiteVisibility } from "@/components/site-visibility/provider";
+import { isFeatureVisible, tenantNavFeature } from "@/lib/site-visibility";
 import type { SiteConfig } from "@/lib/site";
 import {
   tenantFitCheckHref,
@@ -20,10 +22,18 @@ type Props = {
 export function TenantNav({ tenantSlug, site, advocate = true }: Props) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const visibility = useSiteVisibility();
   const base = tenantPagePath(tenantSlug, "/");
-  const links = tenantNavLinks(tenantSlug, { advocate });
+  const allLinks = tenantNavLinks(tenantSlug, { advocate });
+  const links = allLinks.filter((link) => {
+    const featureId = tenantNavFeature(link.href);
+    return featureId ? isFeatureVisible(visibility, featureId) : true;
+  });
   const fitCheck = tenantFitCheckHref(tenantSlug);
   const firstName = site.shortName || site.name.split(" ")[0] || site.name;
+  const showHeaderFitCheck = useFeatureVisible("nav.fit-check");
+  const showHeaderAdvocate = useFeatureVisible("nav.header.advocate");
+  const showOwnerLink = useFeatureVisible("nav.owner-link");
 
   return (
     <header className="fixed inset-x-0 top-0 z-50">
@@ -59,25 +69,27 @@ export function TenantNav({ tenantSlug, site, advocate = true }: Props) {
           </nav>
 
           <div className="hidden items-center gap-2 md:flex">
-            {advocate ? (
-              <>
-                <Link href={fitCheck}>
-                  <Button size="sm" variant="outline">
-                    Score my fit
-                  </Button>
-                </Link>
-                <Link href={tenantPagePath(tenantSlug, "/chat")}>
-                  <Button size="sm">Talk to my advocate</Button>
-                </Link>
-              </>
+            {advocate && showHeaderFitCheck ? (
+              <Link href={fitCheck}>
+                <Button size="sm" variant="outline">
+                  Score my fit
+                </Button>
+              </Link>
             ) : null}
-            <Link
-              href="/myoffice"
-              className="rounded-full px-3 py-2 text-xs text-faint transition-colors hover:text-muted"
-              title="Site owner login"
-            >
-              Owner
-            </Link>
+            {advocate && showHeaderAdvocate ? (
+              <Link href={tenantPagePath(tenantSlug, "/chat")}>
+                <Button size="sm">Talk to my advocate</Button>
+              </Link>
+            ) : null}
+            {showOwnerLink ? (
+              <Link
+                href="/myoffice"
+                className="rounded-full px-3 py-2 text-xs text-faint transition-colors hover:text-muted"
+                title="Site owner login"
+              >
+                Owner
+              </Link>
+            ) : null}
           </div>
 
           <button
@@ -124,29 +136,31 @@ export function TenantNav({ tenantSlug, site, advocate = true }: Props) {
                 {link.label}
               </Link>
             ))}
-            {advocate ? (
-              <>
-                <Link href={fitCheck} onClick={() => setOpen(false)}>
-                  <Button variant="outline" className="mt-2 w-full">
-                    Score my fit
-                  </Button>
-                </Link>
-                <Link
-                  href={tenantPagePath(tenantSlug, "/chat")}
-                  onClick={() => setOpen(false)}
-                  className="mt-2"
-                >
-                  <Button className="w-full">Talk to my advocate</Button>
-                </Link>
-              </>
+            {advocate && showHeaderFitCheck ? (
+              <Link href={fitCheck} onClick={() => setOpen(false)}>
+                <Button variant="outline" className="mt-2 w-full">
+                  Score my fit
+                </Button>
+              </Link>
             ) : null}
-            <Link
-              href="/myoffice"
-              onClick={() => setOpen(false)}
-              className="mt-3 px-4 text-xs text-faint hover:text-muted"
-            >
-              Site owner login
-            </Link>
+            {advocate && showHeaderAdvocate ? (
+              <Link
+                href={tenantPagePath(tenantSlug, "/chat")}
+                onClick={() => setOpen(false)}
+                className="mt-2"
+              >
+                <Button className="w-full">Talk to my advocate</Button>
+              </Link>
+            ) : null}
+            {showOwnerLink ? (
+              <Link
+                href="/myoffice"
+                onClick={() => setOpen(false)}
+                className="mt-3 px-4 text-xs text-faint hover:text-muted"
+              >
+                Site owner login
+              </Link>
+            ) : null}
           </Container>
         </div>
       ) : null}

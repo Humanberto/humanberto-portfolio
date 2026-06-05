@@ -18,7 +18,7 @@ export default async function TenantAboutPage({
   params: Promise<{ tenantSlug: string }>;
 }) {
   const { tenantSlug } = await params;
-  const ctx = await requireTenantSite(tenantSlug);
+  const ctx = await requireTenantSite(tenantSlug, { page: "page.about" });
   const { site, about } = ctx;
   const firstName = site.name.split(" ")[0] ?? site.name;
 

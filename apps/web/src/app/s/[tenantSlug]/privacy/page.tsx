@@ -9,7 +9,7 @@ export default async function TenantPrivacyPage({
   params: Promise<{ tenantSlug: string }>;
 }) {
   const { tenantSlug } = await params;
-  const ctx = await requireTenantSite(tenantSlug);
+  const ctx = await requireTenantSite(tenantSlug, { page: "page.privacy" });
 
   return (
     <div className="pt-32 pb-24">

@@ -11,6 +11,7 @@ import { DesignSystemStyles } from "@/components/theme/design-system-styles";
 import { getGlobalDesignSystem } from "@/lib/design-system.server";
 import { getProject } from "@/lib/projects.server";
 import { getTenantBySlug } from "@/lib/tenant/server";
+import { requireFeatureVisible } from "@/lib/site-visibility.server";
 import { BOOTSTRAP_TENANT_SLUG, tenantPublicPath } from "@/lib/tenant/constants";
 
 export const dynamic = "force-dynamic";
@@ -41,6 +42,7 @@ export default async function TenantCaseStudy({
 
   const tenant = await getTenantBySlug(tenantSlug);
   if (!tenant || tenant.status === "suspended") notFound();
+  await requireFeatureVisible(tenant.id, "tenant", "page.work");
 
   const [project, globalDesign] = await Promise.all([
     getProject(slug, tenant.id),

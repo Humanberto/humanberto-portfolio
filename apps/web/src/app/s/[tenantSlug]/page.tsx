@@ -2,6 +2,7 @@ import { BuildGuide } from "@/components/tenant/build-guide";
 import { TenantHome } from "@/components/tenant/tenant-home";
 import { getFeaturedProjects } from "@/lib/projects.server";
 import { requireTenantSite } from "@/lib/tenant/require-tenant-site";
+import { getTenantVisibility } from "@/lib/site-visibility.server";
 import { tenantPublicPath } from "@/lib/tenant/constants";
 
 export const dynamic = "force-dynamic";
@@ -16,7 +17,10 @@ export default async function TenantHomePage({
   const { tenantSlug } = await params;
   const { welcome } = await searchParams;
   const ctx = await requireTenantSite(tenantSlug);
-  const projects = await getFeaturedProjects(ctx.tenant.id);
+  const [projects, visibility] = await Promise.all([
+    getFeaturedProjects(ctx.tenant.id),
+    getTenantVisibility(ctx.tenant.id),
+  ]);
 
   return (
     <>
@@ -26,6 +30,7 @@ export default async function TenantHomePage({
         projects={projects}
         about={ctx.about}
         advocate={ctx.advocate}
+        visibility={visibility}
       />
       <BuildGuide
         tenantId={ctx.tenant.id}

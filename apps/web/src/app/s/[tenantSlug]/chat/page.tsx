@@ -13,7 +13,7 @@ export default async function TenantChatPage({
   params: Promise<{ tenantSlug: string }>;
 }) {
   const { tenantSlug } = await params;
-  const ctx = await requireTenantSite(tenantSlug);
+  const ctx = await requireTenantSite(tenantSlug, { page: "page.chat" });
   if (!ctx.advocate) {
     return (
       <div className="pt-32 pb-24">

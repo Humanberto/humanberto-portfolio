@@ -17,7 +17,7 @@ export default async function TenantContactPage({
   params: Promise<{ tenantSlug: string }>;
 }) {
   const { tenantSlug } = await params;
-  const ctx = await requireTenantSite(tenantSlug);
+  const ctx = await requireTenantSite(tenantSlug, { page: "page.contact" });
   const { site } = ctx;
 
   return (

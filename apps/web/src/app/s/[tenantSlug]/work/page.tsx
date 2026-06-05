@@ -12,7 +12,7 @@ export default async function TenantWorkPage({
   params: Promise<{ tenantSlug: string }>;
 }) {
   const { tenantSlug } = await params;
-  const ctx = await requireTenantSite(tenantSlug);
+  const ctx = await requireTenantSite(tenantSlug, { page: "page.work" });
   const projects = await getProjects(ctx.tenant.id);
 
   return (
