@@ -30,7 +30,8 @@ export default async function MyOfficeLayout({
   }
 
   const tenant = await getTenantById(ctx.tenantId);
-  const publicHref = tenant ? tenantPublicPath(tenant.slug) : "/";
+  const isBootstrap = ctx.isBootstrapOffice;
+  const publicHref = isBootstrap ? "/" : tenant ? tenantPublicPath(tenant.slug) : "/";
 
   return (
     <div className="min-h-dvh bg-[#0b0610] text-[#f5eef8]">
@@ -38,22 +39,20 @@ export default async function MyOfficeLayout({
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-4">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-white/50">
-              {ctx.isLegacyAdmin ? "Humanberto" : "Humanberto Studio"}
+              {isBootstrap ? "Humanberto" : "Humanberto Studio"}
             </p>
             <h1 className="font-display text-xl">
-              {tenant?.display_name ?? "Back office"}
+              {isBootstrap ? "Back office" : (tenant?.display_name ?? "Back office")}
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            {tenant && (
-              <Link
-                href={publicHref}
-                target="_blank"
-                className="hidden rounded-full border border-white/15 px-4 py-2 text-sm text-white/80 hover:bg-white/5 sm:inline-block"
-              >
-                View site ↗
-              </Link>
-            )}
+            <Link
+              href={publicHref}
+              target="_blank"
+              className="hidden rounded-full border border-white/15 px-4 py-2 text-sm text-white/80 hover:bg-white/5 sm:inline-block"
+            >
+              View site ↗
+            </Link>
             <form action="/api/myoffice/auth/logout" method="post">
               <button
                 type="submit"

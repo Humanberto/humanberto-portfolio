@@ -51,7 +51,14 @@ export async function getProject(slug: string, tenantId?: string): Promise<Proje
 export async function getAllProjects(tenantId?: string): Promise<AdminProject[]> {
   const tid = tenantId ?? (await tenantIdForRead());
   const override = await getContentOverride<Project[]>("projects", tid);
-  if (override !== null) return withPublishedDefaults(override);
+  if (override !== null) {
+    const items = withPublishedDefaults(override);
+    // Bootstrap portfolio: empty DB row must not hide the shipped defaultProjects.
+    if (tid === defaultTenantId() && items.length === 0) {
+      return withPublishedDefaults(defaultProjects);
+    }
+    return items;
+  }
   if (tid === defaultTenantId()) return withPublishedDefaults(defaultProjects);
   return [];
 }
