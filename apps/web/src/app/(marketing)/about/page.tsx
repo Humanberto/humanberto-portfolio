@@ -10,6 +10,7 @@ import {
 } from "@humanberto/ui";
 import { site, fitCheckHref } from "@/lib/site";
 import { ProfilePortrait } from "@/components/profile-portrait";
+import { requireBootstrapPage } from "@/lib/site-visibility.server";
 
 export const metadata: Metadata = {
   title: "About",
@@ -66,7 +67,8 @@ const education = [
   "BBA, Tourism & Hospitality - Belas Artes de Sao Paulo, Brazil",
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  await requireBootstrapPage("page.about");
   return (
     <div className="pt-32">
       <Container className="max-w-3xl">

@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@humanberto/ui";
+import { requireBootstrapPage } from "@/lib/site-visibility.server";
 
 export const metadata: Metadata = {
   title: "Terms of Use",
   description: "Terms of use for humanberto.com and related products by Roberto Pocas Leitao.",
 };
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  await requireBootstrapPage("page.terms");
   return (
     <div className="pt-32 pb-20">
       <Container className="max-w-3xl prose prose-invert prose-headings:font-display">

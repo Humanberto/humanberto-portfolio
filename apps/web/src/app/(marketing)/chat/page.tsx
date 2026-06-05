@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AdvocateChat, FitAnalyzer } from "@humanberto/advocate-agent";
 import { Badge, Button, Container, GradientText } from "@humanberto/ui";
 import { advocateClient } from "@/content/advocate.client";
+import { requireBootstrapPage } from "@/lib/site-visibility.server";
 import { fitCheckHref } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -11,7 +12,8 @@ export const metadata: Metadata = {
     "Chat with Roberto's AI advocate - an honest guide to his fit for your role or project. Text chat, scheduling, and a savable transcript.",
 };
 
-export default function ChatPage() {
+export default async function ChatPage() {
+  await requireBootstrapPage("page.chat");
   return (
     <div className="pt-28 pb-12">
       <Container className="max-w-3xl">

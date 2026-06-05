@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge, Button, Card, Container, GradientText, SectionHeading } from "@humanberto/ui";
+import { requireBootstrapPage } from "@/lib/site-visibility.server";
 
 export const metadata: Metadata = {
   title: "Humanberto Studio — Build your portfolio",
@@ -34,7 +35,8 @@ const steps = [
   { n: "04", label: "Ship", detail: "Add projects in myoffice and share your public portfolio." },
 ];
 
-export default function StudioLandingPage() {
+export default async function StudioLandingPage() {
+  await requireBootstrapPage("page.studio");
   return (
     <>
       <section className="relative flex min-h-[80vh] items-center pt-28 pb-16">

@@ -9,6 +9,7 @@ import {
   SectionHeading,
 } from "@humanberto/ui";
 import { CalBooking } from "@/components/contact/cal-booking";
+import { requireBootstrapPage } from "@/lib/site-visibility.server";
 import { fitCheckHref, site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -16,7 +17,8 @@ export const metadata: Metadata = {
   description: `Get in touch with ${site.name} - email, LinkedIn, or book an intro call.`,
 };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  await requireBootstrapPage("page.contact");
   return (
     <div className="pt-32 pb-10">
       <Container className="max-w-4xl">

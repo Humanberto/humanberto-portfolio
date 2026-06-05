@@ -10,6 +10,7 @@ import { ProjectVideos } from "@/components/work/project-videos";
 import { DesignSystemStyles } from "@/components/theme/design-system-styles";
 import { getGlobalDesignSystem } from "@/lib/design-system.server";
 import { getProject, getProjects } from "@/lib/projects.server";
+import { requireBootstrapPage } from "@/lib/site-visibility.server";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +39,7 @@ export default async function CaseStudy({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  await requireBootstrapPage("page.work");
   const [project, globalDesign] = await Promise.all([getProject(slug), getGlobalDesignSystem()]);
   if (!project) notFound();
 

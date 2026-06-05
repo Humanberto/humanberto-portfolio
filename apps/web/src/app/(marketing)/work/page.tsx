@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Container } from "@humanberto/ui";
 import { WorkExplorer } from "@/components/work/work-explorer";
 import { getProjects } from "@/lib/projects.server";
+import { requireBootstrapPage } from "@/lib/site-visibility.server";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function WorkPage() {
+  await requireBootstrapPage("page.work");
   const projects = await getProjects();
   return (
     <div className="pt-32 pb-24">
