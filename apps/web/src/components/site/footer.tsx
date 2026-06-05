@@ -67,6 +67,11 @@ export function Footer() {
                   GitHub
                 </a>
               ) : null}
+              {isFeatureVisible(visibility, "footer.owner-link") ? (
+                <Link href="/myoffice" className="text-sm text-faint hover:text-muted">
+                  Site owner
+                </Link>
+              ) : null}
             </div>
           </div>
         </div>

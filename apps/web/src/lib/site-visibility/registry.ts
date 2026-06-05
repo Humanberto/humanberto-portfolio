@@ -83,7 +83,7 @@ export const SITE_FEATURES: SiteFeatureDef[] = [
     label: "Owner login link",
     group: "Navigation",
     description: "Subtle “Owner” link to My Office in the header.",
-    scopes: ["tenant"],
+    scopes: ["both"],
     defaultVisible: true,
   },
 
@@ -239,7 +239,7 @@ export const SITE_FEATURES: SiteFeatureDef[] = [
     label: "Footer owner link",
     group: "Footer",
     description: "Site owner link to My Office.",
-    scopes: ["tenant"],
+    scopes: ["both"],
     defaultVisible: true,
   },
   {

@@ -14,6 +14,7 @@ export function Nav() {
   const visibility = useSiteVisibility();
   const showHeaderFitCheck = useFeatureVisible("nav.fit-check");
   const showHeaderAdvocate = useFeatureVisible("nav.header.advocate");
+  const showOwnerLink = useFeatureVisible("nav.owner-link");
 
   const links = navLinks.filter((link) => {
     const featureId = BOOTSTRAP_NAV_FEATURE[link.href];
@@ -67,6 +68,15 @@ export function Nav() {
             {showHeaderAdvocate ? (
               <Link href="/chat">
                 <Button size="sm">Talk to my advocate</Button>
+              </Link>
+            ) : null}
+            {showOwnerLink ? (
+              <Link
+                href="/myoffice"
+                className="rounded-full px-3 py-2 text-xs text-faint transition-colors hover:text-muted"
+                title="Site owner login"
+              >
+                Owner
               </Link>
             ) : null}
           </div>
@@ -126,6 +136,15 @@ export function Nav() {
             {showHeaderAdvocate ? (
               <Link href="/chat" onClick={() => setOpen(false)} className="mt-2">
                 <Button className="w-full">Talk to my advocate</Button>
+              </Link>
+            ) : null}
+            {showOwnerLink ? (
+              <Link
+                href="/myoffice"
+                onClick={() => setOpen(false)}
+                className="mt-3 px-4 text-xs text-faint hover:text-muted"
+              >
+                Site owner login
               </Link>
             ) : null}
           </Container>
