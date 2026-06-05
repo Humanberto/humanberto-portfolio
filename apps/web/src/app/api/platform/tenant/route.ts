@@ -30,6 +30,7 @@ export async function GET() {
       id: tenant.id,
       slug: tenant.slug,
       displayName: tenant.display_name,
+      status: tenant.status,
     },
   });
 }

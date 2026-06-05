@@ -3,6 +3,7 @@ import { BOOTSTRAP_TENANT_SLUG, tenantPublicPath, type TenantRow } from "@/lib/t
 /** Default path after sign-in when no explicit `next` was requested. */
 export function defaultPostAuthPath(tenant: TenantRow | undefined): string {
   if (!tenant) return "/onboarding";
+  if (tenant.status === "onboarding") return "/onboarding";
   if (tenant.slug === BOOTSTRAP_TENANT_SLUG) return "/myoffice/studio";
   return tenantPublicPath(tenant.slug);
 }

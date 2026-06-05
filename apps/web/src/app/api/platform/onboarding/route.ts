@@ -5,7 +5,6 @@ import { seedTenantDefaults } from "@/lib/admin/content";
 import { getAdminSupabase } from "@/lib/admin/supabase";
 import { createTenantForUser, getTenantsForUser } from "@/lib/tenant/server";
 import { TENANT_COOKIE } from "@/lib/tenant/office-context";
-import { buildInitialSiteFromIntake } from "@/lib/platform/seed-from-intake";
 
 export async function POST(req: Request) {
   const user = await getAuthUser();
@@ -33,12 +32,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Slug taken or invalid." }, { status: 409 });
     }
     await seedTenantDefaults(tenant.id);
-    await buildInitialSiteFromIntake(
-      tenant.id,
-      displayName,
-      user.email,
-      answers,
-    );
   }
 
   const supabase = await getAdminSupabase();
@@ -53,7 +46,7 @@ export async function POST(req: Request) {
       .update({
         research_completed_at: new Date().toISOString(),
         research_responses: answers,
-        status: "active",
+        status: "onboarding",
         display_name: displayName,
         updated_at: new Date().toISOString(),
       })
@@ -70,6 +63,6 @@ export async function POST(req: Request) {
   });
 
   return NextResponse.json({
-    tenant: { id: tenant.id, slug: tenant.slug, displayName: tenant.display_name },
+    tenant: { id: tenant.id, slug: tenant.slug, displayName: tenant.display_name, status: "onboarding" },
   });
 }

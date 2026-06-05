@@ -2,27 +2,25 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { IntakeUploadPanel } from "@/components/platform/intake-upload-panel";
 import { defaultPostAuthPath } from "@/lib/auth/post-auth";
 import { tenantPublicPath } from "@/lib/tenant/constants";
 import { PLATFORM_RESEARCH } from "@/lib/platform/research";
 import { createAuthClient } from "@/lib/auth/client";
 
-async function resolveClientPostAuthPath(): Promise<string> {
+type TenantInfo = { slug: string; status: string };
+
+async function fetchTenant(): Promise<TenantInfo | null> {
   const res = await fetch("/api/platform/tenant");
-  if (!res.ok) return "/onboarding";
-  const data = (await res.json()) as { tenant?: { slug: string } };
-  if (!data.tenant?.slug) return "/onboarding";
-  return defaultPostAuthPath({
-    id: "",
-    slug: data.tenant.slug,
-    display_name: "",
-    status: "active",
-    research_completed_at: null,
-  });
+  if (!res.ok) return null;
+  const data = (await res.json()) as { tenant?: TenantInfo };
+  return data.tenant ?? null;
 }
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const [step, setStep] = useState<1 | 2>(1);
+  const [tenantSlug, setTenantSlug] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [slug, setSlug] = useState("");
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -33,23 +31,31 @@ export default function OnboardingPage() {
   useEffect(() => {
     void (async () => {
       const supabase = createAuthClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         router.replace("/signup?next=/onboarding");
         return;
       }
-      const tenantRes = await fetch("/api/platform/tenant");
-      if (tenantRes.ok) {
-        router.replace(await resolveClientPostAuthPath());
+
+      const tenant = await fetchTenant();
+      if (tenant?.status === "active" && tenant.slug) {
+        router.replace(defaultPostAuthPath({ ...tenant, id: "", display_name: "", research_completed_at: null }));
         return;
       }
+      if (tenant?.status === "onboarding" && tenant.slug) {
+        setTenantSlug(tenant.slug);
+        setStep(2);
+      }
+
       const meta = user.user_metadata as { full_name?: string };
       if (meta.full_name) setDisplayName(meta.full_name);
       setChecking(false);
     })();
   }, [router]);
 
-  async function submit(e: React.FormEvent) {
+  async function submitProfile(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -65,11 +71,14 @@ export default function OnboardingPage() {
       return;
     }
     const data = (await res.json()) as { tenant?: { slug: string } };
-    router.replace(
-      data.tenant?.slug
-        ? `${tenantPublicPath(data.tenant.slug)}?welcome=1`
-        : "/onboarding",
-    );
+    if (data.tenant?.slug) {
+      setTenantSlug(data.tenant.slug);
+      setStep(2);
+    }
+  }
+
+  function afterBuild() {
+    router.replace(tenantSlug ? `${tenantPublicPath(tenantSlug)}?welcome=1` : "/onboarding");
     router.refresh();
   }
 
@@ -77,11 +86,33 @@ export default function OnboardingPage() {
     return <p className="p-10 text-white/60">Loading…</p>;
   }
 
+  if (step === 2) {
+    return (
+      <div className="mx-auto max-w-2xl px-6 py-16">
+        <p className="text-xs uppercase tracking-[0.2em] text-white/40">Step 2 of 2</p>
+        <h1 className="mt-2 font-display text-3xl">Upload your materials</h1>
+        <p className="mt-2 text-sm text-white/60">
+          Optional — add resume, portfolio, and project files so the design agent can build your
+          site. You can always add more later in My Office.
+        </p>
+        <div className="mt-10">
+          <IntakeUploadPanel
+            apiBase="/api/platform/intake"
+            onBuilt={afterBuild}
+            buildLabel="Build my portfolio"
+            skipLabel="Skip uploads — build from my answers"
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-xl px-6 py-16">
-      <h1 className="font-display text-3xl">Set up your portfolio</h1>
+      <p className="text-xs uppercase tracking-[0.2em] text-white/40">Step 1 of 2</p>
+      <h1 className="mt-2 font-display text-3xl">Set up your portfolio</h1>
       <p className="mt-2 text-sm text-white/60">Pick a URL and answer a few quick questions.</p>
-      <form onSubmit={submit} className="mt-8 space-y-6">
+      <form onSubmit={submitProfile} className="mt-8 space-y-6">
         <label className="block text-sm text-white/70">
           Your name (shown on site)
           <input
@@ -135,7 +166,9 @@ export default function OnboardingPage() {
               >
                 <option value="">Select…</option>
                 {q.options?.map((o) => (
-                  <option key={o} value={o}>{o}</option>
+                  <option key={o} value={o}>
+                    {o}
+                  </option>
                 ))}
               </select>
             ) : (
@@ -154,7 +187,7 @@ export default function OnboardingPage() {
           disabled={loading}
           className="w-full rounded-full bg-white py-3 text-sm font-medium text-black disabled:opacity-50"
         >
-          {loading ? "Creating…" : "Launch my portfolio"}
+          {loading ? "Saving…" : "Continue to uploads"}
         </button>
       </form>
     </div>
