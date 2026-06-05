@@ -7,6 +7,7 @@ export type ContentKey =
   | "site"
   | "about"
   | "intake_assets"
+  | "site_visibility"
   | "advocate_prompt"
   | "advocate_facts"
   | "projects"

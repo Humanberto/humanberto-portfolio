@@ -5,6 +5,8 @@ import { getSite } from "@/lib/site.server";
 import { getTenantBySlug } from "@/lib/tenant/server";
 import { BOOTSTRAP_TENANT_SLUG, tenantPublicPath } from "@/lib/tenant/constants";
 import { advocateEnabledFromIntake } from "@/lib/tenant/public-site";
+import { requireFeatureVisible } from "@/lib/site-visibility.server";
+import type { SiteFeatureId } from "@/lib/site-visibility";
 
 export type TenantAboutContent = {
   intro: string;
@@ -12,11 +14,18 @@ export type TenantAboutContent = {
   audience: string;
 };
 
-export async function requireTenantSite(tenantSlug: string) {
+export async function requireTenantSite(
+  tenantSlug: string,
+  opts?: { page?: SiteFeatureId },
+) {
   if (tenantSlug === BOOTSTRAP_TENANT_SLUG) notFound();
 
   const tenant = await getTenantBySlug(tenantSlug);
   if (!tenant || tenant.status === "suspended") notFound();
+
+  if (opts?.page) {
+    await requireFeatureVisible(tenant.id, "tenant", opts.page);
+  }
 
   const [site, aboutOverride] = await Promise.all([
     getSite(tenant.id),
