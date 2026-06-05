@@ -6,7 +6,14 @@ export function describeAuthError(
   if (!error) return null;
 
   if (error === "auth_callback") {
+    if (reason) {
+      return `Sign-in could not be completed: ${decodeURIComponent(reason.replace(/\+/g, " "))}`;
+    }
     return "Sign-in could not be completed. Please try again.";
+  }
+
+  if (error === "auth_config") {
+    return "Auth is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local, then restart the dev server.";
   }
 
   if (reason === "google_exchange" || /exchange external code/i.test(reason ?? "")) {

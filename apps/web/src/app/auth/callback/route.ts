@@ -22,7 +22,10 @@ export async function GET(request: NextRequest) {
 
   const { error } = await supabase.auth.exchangeCodeForSession(code);
   if (error) {
-    return NextResponse.redirect(`${origin}/signup?error=auth_callback`);
+    const signup = new URL("/signup", origin);
+    signup.searchParams.set("error", "auth_callback");
+    signup.searchParams.set("reason", error.message.slice(0, 200));
+    return NextResponse.redirect(signup);
   }
 
   const {
