@@ -65,7 +65,11 @@ export default function OnboardingPage() {
       return;
     }
     const data = (await res.json()) as { tenant?: { slug: string } };
-    router.replace(data.tenant?.slug ? tenantPublicPath(data.tenant.slug) : "/onboarding");
+    router.replace(
+      data.tenant?.slug
+        ? `${tenantPublicPath(data.tenant.slug)}?welcome=1`
+        : "/onboarding",
+    );
     router.refresh();
   }
 
@@ -150,7 +154,7 @@ export default function OnboardingPage() {
           disabled={loading}
           className="w-full rounded-full bg-white py-3 text-sm font-medium text-black disabled:opacity-50"
         >
-          {loading ? "Creating…" : "Open my studio"}
+          {loading ? "Creating…" : "Launch my portfolio"}
         </button>
       </form>
     </div>

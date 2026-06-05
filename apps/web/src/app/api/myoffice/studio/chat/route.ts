@@ -3,6 +3,7 @@ import { z } from "zod";
 import { NextResponse } from "next/server";
 import { withModelChain } from "@/lib/advocate-model";
 import { resolveOfficeContext } from "@/lib/tenant/office-context";
+import { getTenantById } from "@/lib/tenant/server";
 import { getAdminSupabase } from "@/lib/admin/supabase";
 import {
   PROJECT_STUDIO_SYSTEM_PROMPT,
@@ -93,6 +94,11 @@ export async function POST(req: Request) {
   let appliedSitePatch: StudioPatch | null = null;
   let appliedProjectPatch: ProjectStudioPatch | null = null;
 
+  const tenantMeta = await getTenantById(ctx.tenantId);
+  const intakeBlock = tenantMeta?.research_responses
+    ? `\n\nOwner intake (use for tone, audience, and design direction):\n${JSON.stringify(tenantMeta.research_responses, null, 2)}`
+    : "";
+
   const systemPrompt = isProjectMode
     ? `${PROJECT_STUDIO_SYSTEM_PROMPT}
 
@@ -104,7 +110,7 @@ Summary: ${(state as Awaited<ReturnType<typeof loadProjectStudioState>>)!.projec
 
 Current design system name: ${(state as Awaited<ReturnType<typeof loadStudioState>>).designSystem.name}
 Current site tagline: ${(state as Awaited<ReturnType<typeof loadStudioState>>).site.tagline}
-Current site role: ${(state as Awaited<ReturnType<typeof loadStudioState>>).site.role}`;
+Current site role: ${(state as Awaited<ReturnType<typeof loadStudioState>>).site.role}${intakeBlock}`;
 
   const result = await withModelChain(
     async (model) =>

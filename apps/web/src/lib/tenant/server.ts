@@ -7,7 +7,7 @@ export async function getTenantBySlug(slug: string): Promise<TenantRow | null> {
   if (!supabase) return null;
   const { data } = await supabase
     .from("tenants")
-    .select("id, slug, display_name, status, research_completed_at")
+    .select("id, slug, display_name, status, research_completed_at, research_responses")
     .eq("slug", slug.toLowerCase())
     .maybeSingle();
   return data as TenantRow | null;
@@ -18,7 +18,7 @@ export async function getTenantById(id: string): Promise<TenantRow | null> {
   if (!supabase) return null;
   const { data } = await supabase
     .from("tenants")
-    .select("id, slug, display_name, status, research_completed_at")
+    .select("id, slug, display_name, status, research_completed_at, research_responses")
     .eq("id", id)
     .maybeSingle();
   return data as TenantRow | null;
@@ -35,7 +35,7 @@ export async function getTenantsForUser(userId: string): Promise<TenantRow[]> {
   const ids = memberships.map((m) => m.tenant_id as string);
   const { data } = await supabase
     .from("tenants")
-    .select("id, slug, display_name, status, research_completed_at")
+    .select("id, slug, display_name, status, research_completed_at, research_responses")
     .in("id", ids);
   return (data ?? []) as TenantRow[];
 }
@@ -60,7 +60,7 @@ export async function createTenantForUser(input: {
       display_name: input.displayName.trim(),
       status: "onboarding",
     })
-    .select("id, slug, display_name, status, research_completed_at")
+    .select("id, slug, display_name, status, research_completed_at, research_responses")
     .single();
 
   if (tenantError || !tenant) return null;

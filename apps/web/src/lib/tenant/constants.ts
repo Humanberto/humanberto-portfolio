@@ -8,6 +8,7 @@ export type TenantRow = {
   display_name: string;
   status: string;
   research_completed_at: string | null;
+  research_responses?: Record<string, string> | null;
 };
 
 export function tenantPublicPath(slug: string): string {

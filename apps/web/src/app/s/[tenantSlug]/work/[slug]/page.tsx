@@ -49,6 +49,7 @@ export default async function TenantCaseStudy({
   if (!project) notFound();
 
   const base = tenantPublicPath(tenantSlug);
+  const workBase = `${base}/work`;
   const projectDesign = resolveProjectDesignSystem(globalDesign, project.designSystem);
   const useProjectTheme = project.designSystem?.mode === "custom";
 
@@ -65,8 +66,8 @@ export default async function TenantCaseStudy({
         <DesignSystemStyles system={projectDesign} selector=".project-theme" />
       )}
       <Container className="max-w-3xl">
-        <Link href={base} className="text-sm text-muted hover:text-fg">
-          &lt;- {tenant.display_name}
+        <Link href={workBase} className="text-sm text-muted hover:text-fg">
+          &lt;- All work
         </Link>
 
         <div className="mt-6 flex flex-wrap items-center gap-3">

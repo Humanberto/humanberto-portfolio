@@ -7,9 +7,12 @@ import { StatusPill } from "./status-pill";
 export function ProjectCard({
   project,
   selected = [],
+  href,
 }: {
   project: Project;
   selected?: Pillar[];
+  /** Override link target (tenant sites use /s/{slug}/work/...) */
+  href?: string;
 }) {
   const accentGlow =
     project.accent === "purple"
@@ -17,7 +20,7 @@ export function ProjectCard({
       : "from-gold/20";
 
   return (
-    <Link href={`/work/${project.slug}`} className="group block h-full">
+    <Link href={href ?? `/work/${project.slug}`} className="group block h-full">
       <Card className="flex h-full flex-col p-6 transition-transform duration-300 group-hover:-translate-y-1">
         <div
           className={cn(

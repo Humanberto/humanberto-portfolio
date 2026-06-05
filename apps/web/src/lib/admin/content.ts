@@ -5,6 +5,7 @@ import { defaultTenantId } from "@/lib/tenant/server";
 
 export type ContentKey =
   | "site"
+  | "about"
   | "advocate_prompt"
   | "advocate_facts"
   | "projects"

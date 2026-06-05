@@ -5,8 +5,7 @@ import { seedTenantDefaults } from "@/lib/admin/content";
 import { getAdminSupabase } from "@/lib/admin/supabase";
 import { createTenantForUser, getTenantsForUser } from "@/lib/tenant/server";
 import { TENANT_COOKIE } from "@/lib/tenant/office-context";
-import { defaultSite } from "@/lib/site";
-import { setContentOverride } from "@/lib/admin/content";
+import { buildInitialSiteFromIntake } from "@/lib/platform/seed-from-intake";
 
 export async function POST(req: Request) {
   const user = await getAuthUser();
@@ -22,6 +21,7 @@ export async function POST(req: Request) {
 
   const displayName = body.displayName?.trim();
   const slug = body.slug?.trim().toLowerCase();
+  const answers = body.answers ?? {};
   if (!displayName || !slug) {
     return NextResponse.json({ error: "Name and URL slug required." }, { status: 400 });
   }
@@ -33,34 +33,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Slug taken or invalid." }, { status: 409 });
     }
     await seedTenantDefaults(tenant.id);
-    await setContentOverride(
-      "site",
-      {
-        ...defaultSite,
-        name: displayName,
-        shortName: displayName.split(" ")[0] ?? displayName,
-        role: body.answers?.role ?? defaultSite.role,
-        tagline: body.answers?.goal
-          ? `${body.answers.goal} — portfolio by ${displayName}`
-          : defaultSite.tagline,
-        email: user.email ?? defaultSite.email,
-      },
+    await buildInitialSiteFromIntake(
       tenant.id,
+      displayName,
+      user.email,
+      answers,
     );
   }
 
   const supabase = await getAdminSupabase();
-  if (supabase && body.answers) {
+  if (supabase && Object.keys(answers).length > 0) {
     await supabase.from("tenant_research").insert({
       tenant_id: tenant.id,
       user_id: user.id,
-      answers: body.answers,
+      answers,
     });
     await supabase
       .from("tenants")
       .update({
         research_completed_at: new Date().toISOString(),
-        research_responses: body.answers,
+        research_responses: answers,
         status: "active",
         display_name: displayName,
         updated_at: new Date().toISOString(),

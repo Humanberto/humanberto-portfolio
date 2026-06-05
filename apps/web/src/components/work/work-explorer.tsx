@@ -12,7 +12,15 @@ function overlapCount(project: Project, selected: Pillar[]) {
   return project.pillars.filter((p) => selected.includes(p)).length;
 }
 
-export function WorkExplorer({ projects }: { projects: Project[] }) {
+export function WorkExplorer({
+  projects,
+  projectHref,
+  fitCheckHref: fitHref,
+}: {
+  projects: Project[];
+  projectHref?: (slug: string) => string;
+  fitCheckHref?: string;
+}) {
   const [selected, setSelected] = useState<Pillar[]>([]);
 
   const counts = useMemo(() => {
@@ -143,6 +151,7 @@ export function WorkExplorer({ projects }: { projects: Project[] }) {
             key={project.slug}
             project={project}
             selected={selected}
+            href={projectHref?.(project.slug)}
           />
         ))}
       </div>
@@ -153,6 +162,7 @@ export function WorkExplorer({ projects }: { projects: Project[] }) {
         </p>
       )}
 
+      {fitHref ? (
       <div className="mt-14 rounded-2xl border border-gold/25 bg-gold/5 p-6 text-center sm:p-8">
         <p className="font-display text-xl font-light text-fg">
           Have a specific role or project in mind?
@@ -161,10 +171,11 @@ export function WorkExplorer({ projects }: { projects: Project[] }) {
           Upload the job description or scope and get an honest 0–10 fit score
           — strengths, transferable skills, and gaps included.
         </p>
-        <Link href={fitCheckHref} className="mt-5 inline-block">
+        <Link href={fitHref} className="mt-5 inline-block">
           <Button>Score my fit</Button>
         </Link>
       </div>
+      ) : null}
     </>
   );
 }
