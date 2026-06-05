@@ -14,6 +14,7 @@ import { getGlobalDesignSystem, saveGlobalDesignSystem } from "@/lib/design-syst
 import { getAllProjects, saveAllProjects } from "@/lib/projects.server";
 import type { AdminProject } from "@/lib/projects.shared";
 import { defaultSite, type SiteConfig } from "@/lib/site";
+import { INSPIRATION_DISCLAIMER } from "@/lib/platform/intake-assets";
 
 export type ProjectStudioPatch = {
   title?: string;
@@ -190,6 +191,11 @@ Help the user refine their design system (colors, typography, button radii) and 
 
 When you have concrete changes, call applyStudioPatch with a JSON patch. Use hex colors only.
 Keep suggestions focused and shippable. Ask clarifying questions when needed.
+
+INTAKE UPLOADS:
+- Resume, portfolio, and project files are the user's own work — safe to use for copy and images on their live site.
+- Inspiration uploads are REFERENCE ONLY. ${INSPIRATION_DISCLAIMER}
+- Never copy text, logos, or images from inspiration onto the published portfolio.
 
 CRITICAL — design system rules:
 - Only include fields you want to CHANGE in designSystem patches (partial updates).

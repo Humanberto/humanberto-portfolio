@@ -5,6 +5,7 @@ import { withModelChain } from "@/lib/advocate-model";
 import { resolveOfficeContext } from "@/lib/tenant/office-context";
 import { getTenantById } from "@/lib/tenant/server";
 import { getAdminSupabase } from "@/lib/admin/supabase";
+import { getIntakeAssets } from "@/lib/admin/intake-media";
 import {
   PROJECT_STUDIO_SYSTEM_PROMPT,
   STUDIO_SYSTEM_PROMPT,
@@ -95,9 +96,14 @@ export async function POST(req: Request) {
   let appliedProjectPatch: ProjectStudioPatch | null = null;
 
   const tenantMeta = await getTenantById(ctx.tenantId);
+  const assets = await getIntakeAssets(ctx.tenantId);
   const intakeBlock = tenantMeta?.research_responses
     ? `\n\nOwner intake (use for tone, audience, and design direction):\n${JSON.stringify(tenantMeta.research_responses, null, 2)}`
     : "";
+  const uploadsBlock =
+    assets.resume.length + assets.portfolio.length + assets.projects.length + assets.inspiration.length > 0
+      ? `\n\nIntake uploads on file — resume/portfolio/projects are usable on the live site; inspiration (${assets.inspiration.length} files) is reference-only for mood/colors, never copied onto the site.`
+      : "";
 
   const systemPrompt = isProjectMode
     ? `${PROJECT_STUDIO_SYSTEM_PROMPT}
@@ -110,7 +116,7 @@ Summary: ${(state as Awaited<ReturnType<typeof loadProjectStudioState>>)!.projec
 
 Current design system name: ${(state as Awaited<ReturnType<typeof loadStudioState>>).designSystem.name}
 Current site tagline: ${(state as Awaited<ReturnType<typeof loadStudioState>>).site.tagline}
-Current site role: ${(state as Awaited<ReturnType<typeof loadStudioState>>).site.role}${intakeBlock}`;
+Current site role: ${(state as Awaited<ReturnType<typeof loadStudioState>>).site.role}${intakeBlock}${uploadsBlock}`;
 
   const result = await withModelChain(
     async (model) =>
