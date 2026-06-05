@@ -16,6 +16,7 @@ const nav = [
   { href: "/myoffice/projects", label: "Projects" },
   { href: "/myoffice/design", label: "Design system" },
   { href: "/myoffice/content", label: "Content" },
+  { href: "/myoffice/visibility", label: "Visibility" },
   { href: "/myoffice/llm", label: "LLM keys" },
 ];
 
