@@ -103,29 +103,213 @@ export const projects: Project[] = [
   {
     slug: "vztr-help",
     title: "VZTR Help",
-    tagline: "Coordinating hospital visits without the group-text chaos.",
-    year: "2026",
-    role: "Product design, full-stack build",
+    tagline: "Hospital visit coordination that respects the patient’s energy — not the group chat.",
+    year: "2021–2026",
+    role: "Product lead, UX/UI, full-stack build",
     pillars: ["Product Design", "UX/UI Design", "Python", "Data Engineering"],
     status: "in-progress",
     featured: true,
     accent: "purple",
     summary:
-      "A web app that lets a patient (or a family coordinator) open a visit, invite people, and let visitors claim time slots inside the hospital's rules - no double-booking, no overwhelmed patient.",
+      "VZTR Help started as a real problem I lived through as a primary caregiver during the COVID era — then became my UC Berkeley UX/UI capstone, where I pitched the concept, led our team, and mapped patient and visitor flows end to end. Today it is a deployed MVP on the path to hospital-grade visitor coordination: one link, clear rules, no double-booking, and rest when the patient needs quiet.",
     problem:
-      "When someone is admitted, coordinating who visits and when turns into a stressful group chat. Hospitals cap visitors and hours; families lose track; the patient gets either nobody or everybody at once.",
+      "When someone is hospitalized, visitation should help recovery — but it often becomes another job for the patient. Friends and family call the patient, the caregiver, or both (50% of visitors in our research contacted both). Schedules collide with hospital caps and visiting hours. Patients want connection but also rest; visitors show up tired or unannounced; coordinators repeat the same updates dozens of times. Existing visitor-management tools optimize front-desk check-in for buildings — not a patient-centered schedule the person in the bed can actually control.",
     approach: [
-      "Mapped the real coordination flow: coordinator opens a visit, sets limits, and shares one link.",
-      "Modeled visits, slots, invitations, and limits in Postgres with row-level security.",
-      "Built slot claiming with conflict and capacity checks so two people can't over-fill a window.",
-      "Designed a calm, accessible UI that works for stressed, non-technical family members.",
+      "Grounded the product in lived experience: caregiving for a friend with cancer during COVID, then validated with interviews, surveys, and affinity mapping across timing, hospital friction, feelings, and coordination load.",
+      "Led a Berkeley team (research, IA, visual design) through Crazy 8s, “I like / I wish / What if,” and a priority matrix — narrowing to scheduling plus communication in one place.",
+      "Designed dual-sided flows: patients set availability and rules; visitors claim slots through a single shared link — inspired by award-winning hospital apps (Providence, Nemours) and class-project-to-company stories like Airbnb’s early design-school origins.",
+      "Validated availability UI with moderated tests (67% preferred explicit Available/Unavailable copy over icon-only states) and palette preference tests for warmth and contrast under stress.",
+      "Shipped a full-stack MVP (Next.js + Supabase) with slot claiming, capacity checks, and RLS — bridging from academic prototype to something hospitals could eventually offer as a service.",
     ],
     outcomes: [
-      "A deployed, usable MVP - not just a prototype.",
-      "Clear data model and auth that demonstrates full-stack and product thinking end to end.",
+      "Research-backed problem framing: patients need advance notice, control over rest windows, and relief from being the switchboard.",
+      "Documented patient and visitor user flows — from setting hospital rules to confirming a visit — used as the backbone of the case study process timeline.",
+      "Deployed MVP at vztr-help.vercel.app — not a Figma-only deck.",
+      "Clear product roadmap: hospital integration, QR check-in, pre-registration, and ID scan for front-desk handoff.",
     ],
-    stack: ["Next.js", "TypeScript", "Supabase (Postgres + Auth)", "Tailwind"],
+    stack: [
+      "Figma",
+      "User research & usability testing",
+      "Next.js",
+      "TypeScript",
+      "Supabase (Postgres + Auth)",
+      "Tailwind",
+    ],
     links: { live: "https://vztr-help.vercel.app/access" },
+    processes: [
+      {
+        id: "origin",
+        title: "Origin & discovery",
+        summary:
+          "The idea did not start in a classroom — it started at a hospital bedside. During the COVID pandemic I was the main caregiver for a close friend fighting cancer. I hit every friction point our research later confirmed: conflicting hospital rules, coordinating who could visit when, guessing whether she had energy for guests, and fielding calls from well-meaning visitors who did not know the full picture. In UC Berkeley’s UX/UI program I brought that experience into our final team project, pitched Visitor Help, and led the group through research and flow design.",
+        steps: [
+          {
+            id: "origin-1",
+            title: "Lived problem → design brief",
+            detail:
+              "Caregiving during COVID meant navigating visitor limits, stamina swings, and hospital policy changes in real time — while also being the person everyone called for updates.",
+          },
+          {
+            id: "origin-2",
+            title: "Team research plan",
+            detail:
+              "With Kavitha Karunakaran, Janet Limon, Fiorella Bernal, and Rasheem Tareq we ran parallel interview guides for patients and visitors, plus surveys for patients with visitors, patients without visitors, and visitors-only cohorts.",
+          },
+          {
+            id: "origin-3",
+            title: "What research surfaced",
+            detail:
+              "62.5% of visitors scheduled through a friend or coordinator; 50% called both patient and caregiver before visiting. Recurring themes: “I want to know who is coming,” “sometimes I just need rest,” and “coordination exhausts the person who is sick.”",
+          },
+          {
+            id: "origin-4",
+            title: "Primary persona — Cameron",
+            detail:
+              "We synthesized Cameron Williamson: a detail-oriented children’s book illustrator expecting her third child — wants loved ones nearby but needs predictable, manageable visit windows and zero surprise arrivals.",
+          },
+        ],
+      },
+      {
+        id: "patient-flow",
+        title: "Patient user flow",
+        summary:
+          "The patient (or designated coordinator) stays in control. Hospital rules are captured once; availability is shared through a single link instead of a fragmented group chat.",
+        steps: [
+          {
+            id: "pf-1",
+            title: "Open a visit window",
+            detail:
+              "Patient or caregiver creates a visit period — admission dates, room info when known, and who is allowed to coordinate on their behalf.",
+          },
+          {
+            id: "pf-2",
+            title: "Set hospital rules & limits",
+            detail:
+              "Enter max visitors per slot, visiting hours, and hospital-specific caps (e.g. 1–3 people). Rules propagate to every invite so visitors see constraints before they request time.",
+          },
+          {
+            id: "pf-3",
+            title: "Mark availability & rest",
+            detail:
+              "Block times for rest, procedures, or low-energy days. Usability testing favored explicit “Available / Unavailable” labels over ambiguous icons — 67% of participants chose the text-forward pattern.",
+          },
+          {
+            id: "pf-4",
+            title: "Share one link",
+            detail:
+              "Send a single invite link by text or email. Visitors self-serve scheduling instead of calling the patient repeatedly for “is now okay?”",
+          },
+          {
+            id: "pf-5",
+            title: "Review & adjust",
+            detail:
+              "See who requested which slot, approve or move visits, and pause all incoming requests when recovery requires quiet — without awkward one-off rejections.",
+          },
+        ],
+      },
+      {
+        id: "visitor-flow",
+        title: "Visitor user flow",
+        summary:
+          "Visitors get clarity before they arrive: rules, timing, and confirmation — reducing the guilt of showing up when the patient is exhausted.",
+        steps: [
+          {
+            id: "vf-1",
+            title: "Receive invite",
+            detail:
+              "Visitor gets a link from the patient or caregiver — replacing the old loop of calling both parties to find out whether a visit is welcome.",
+          },
+          {
+            id: "vf-2",
+            title: "Read rules & context",
+            detail:
+              "View visiting hours, capacity limits, and any notes (e.g. “short visits preferred today”) before picking a time.",
+          },
+          {
+            id: "vf-3",
+            title: "Claim a slot",
+            detail:
+              "Choose an open window; the system prevents double-booking and over-capacity slots so two groups cannot collide in the same period.",
+          },
+          {
+            id: "vf-4",
+            title: "Confirm & prepare",
+            detail:
+              "Receive confirmation with check-in guidance — addressing a top visitor pain point from affinity mapping: not knowing where to go or who to ask at the hospital.",
+          },
+          {
+            id: "vf-5",
+            title: "Check in (roadmap)",
+            detail:
+              "Future state: QR or kiosk check-in tied to the scheduled visit, aligning with hospital visitor-management systems without putting the burden back on the patient.",
+          },
+        ],
+      },
+      {
+        id: "design-validation",
+        title: "Design & validation",
+        summary:
+          "We treated Visitor Help like products that outgrow the classroom — the same arc as design-school projects that became real companies: research → narrow scope → test → ship. Competitor analysis (Envoy, SwipedOn, iLobby, etc.) showed strong front-desk tools but a gap for patient-led scheduling.",
+        steps: [
+          {
+            id: "dv-1",
+            title: "Ideation & prioritization",
+            detail:
+              "Crazy 8s, “I like / I wish / What if,” and a priority matrix focused the team on scheduling + communication — deprioritizing nice-to-haves that did not reduce patient load.",
+          },
+          {
+            id: "dv-2",
+            title: "Storyboard & IA",
+            detail:
+              "Storyboarded Cameron’s scenario: overwhelmed before admission, wanting family nearby but not the mental overhead of organizing them. Affinity diagrams clustered timing, hospital navigation, feelings, and coordination pain.",
+          },
+          {
+            id: "dv-3",
+            title: "Wireframes → hi-fi prototype",
+            detail:
+              "Low- and mid-fidelity flows for patient availability and visitor scheduling evolved into a hi-fi Figma prototype with Tajviraj display type, Libre Franklin body, and a warm purple/gold palette tested for contrast and calm.",
+          },
+          {
+            id: "dv-4",
+            title: "Usability & preference tests",
+            detail:
+              "Moderated sessions on availability UI and navigation color combinations. Participants wanted readable states, professional warmth, and less cognitive load — feedback that directly shaped the MVP UI.",
+          },
+        ],
+      },
+      {
+        id: "product-roadmap",
+        title: "From class project to hospital product",
+        summary:
+          "The capstone proved the concept; the MVP proves I can build it. The north star is a service hospitals offer — integrated with their visitor policies, not another app families discover in crisis.",
+        steps: [
+          {
+            id: "pr-1",
+            title: "Shipped MVP",
+            detail:
+              "Built and deployed VZTR Help with authenticated visits, slot logic, and Postgres row-level security — moving from team prototype to a working product Roberto owns end to end.",
+          },
+          {
+            id: "pr-2",
+            title: "Hospital integration",
+            detail:
+              "Next: API hooks for ADT/room updates, configurable policies per unit, and staff dashboards — the pattern used by award-winning hospital apps that pair consumer UX with Epic-adjacent workflows.",
+          },
+          {
+            id: "pr-3",
+            title: "Arrival experience",
+            detail:
+              "QR check-in, pre-registration, and optional ID scan so front desk staff see expected visitors without the patient re-explaining the schedule.",
+          },
+          {
+            id: "pr-4",
+            title: "Vision",
+            detail:
+              "Hospitals provide VZTR Help as part of admission — patients get control, visitors get clarity, caregivers get relief. Happy visitors because the system protected the person they came to see.",
+          },
+        ],
+      },
+    ],
   },
   {
     slug: "petchmaker",
