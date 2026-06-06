@@ -125,7 +125,7 @@ export const projects: Project[] = [
       "Research-backed problem framing: patients need advance notice, control over rest windows, and relief from being the switchboard.",
       "Documented patient and visitor user flows — from setting hospital rules to confirming a visit — used as the backbone of the case study process timeline.",
       "Deployed MVP at vztr-help.vercel.app — not a Figma-only deck.",
-      "Clear product roadmap: hospital integration, QR check-in, pre-registration, and ID scan for front-desk handoff.",
+      "Clear product roadmap: hospital sync for accurate visiting info, parking on the visitor side, QR check-in, pre-registration, and front-desk handoff.",
     ],
     stack: [
       "Figma",
@@ -211,7 +211,7 @@ export const projects: Project[] = [
         id: "visitor-flow",
         title: "Visitor user flow",
         summary:
-          "Visitors get clarity before they arrive: rules, timing, and confirmation — reducing the guilt of showing up when the patient is exhausted.",
+          "Visitors get clarity before they arrive: rules, timing, parking, and confirmation — reducing the guilt of showing up when the patient is exhausted or lost on campus.",
         steps: [
           {
             id: "vf-1",
@@ -235,7 +235,7 @@ export const projects: Project[] = [
             id: "vf-4",
             title: "Confirm & prepare",
             detail:
-              "Receive confirmation with check-in guidance — addressing a top visitor pain point from affinity mapping: not knowing where to go or who to ask at the hospital.",
+              "Receive confirmation with check-in guidance and parking information — lot or garage, validation rules, entrance, and where to go once inside — addressing top visitor pain points from affinity mapping: not knowing where to park, where to go, or who to ask at the hospital.",
           },
           {
             id: "vf-5",
@@ -291,21 +291,21 @@ export const projects: Project[] = [
           },
           {
             id: "pr-2",
-            title: "Hospital integration",
+            title: "Hospital sync",
             detail:
-              "Next: API hooks for ADT/room updates, configurable policies per unit, and staff dashboards — the pattern used by award-winning hospital apps that pair consumer UX with Epic-adjacent workflows.",
+              "VZTR Help will sync with hospitals for accurate visiting information. When a doctor schedules an exam, that time is automatically blocked off. When a doctor decides the patient needs rest, the patient, coordinator, and visitors are notified. The hospital front desk and nurses' desk will automatically have each visitor's information and visiting time ready in their systems.",
           },
           {
             id: "pr-3",
             title: "Arrival experience",
             detail:
-              "QR check-in, pre-registration, and optional ID scan so front desk staff see expected visitors without the patient re-explaining the schedule.",
+              "QR check-in, pre-registration, optional ID scan, and parking details on the visitor confirmation — so front desk staff see expected visitors without the patient re-explaining the schedule.",
           },
           {
             id: "pr-4",
             title: "Vision",
             detail:
-              "Hospitals provide VZTR Help as part of admission — patients get control, visitors get clarity, caregivers get relief. Happy visitors because the system protected the person they came to see.",
+              "Hospitals provide VZTR Help as part of admission — patients get control, visitors get clarity (including parking), caregivers get relief. Happy visitors because the system protected the person they came to see.",
           },
         ],
       },
