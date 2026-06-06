@@ -6,6 +6,7 @@ import { StatusPill } from "@/components/work/status-pill";
 import { ProjectGallery } from "@/components/work/project-gallery";
 import { ProjectCoverImage } from "@/components/work/project-image-lightbox";
 import { ProjectProcessTimeline } from "@/components/work/project-process-timeline";
+import { VztrHelpVisualExplainer } from "@/components/work/vztr-help-visual-explainer";
 import { ProjectVideos } from "@/components/work/project-videos";
 import { DesignSystemStyles } from "@/components/theme/design-system-styles";
 import { getGlobalDesignSystem } from "@/lib/design-system.server";
@@ -108,6 +109,14 @@ export default async function CaseStudy({
         <Section title="The problem">
           <p>{project.problem}</p>
         </Section>
+
+        {slug === "vztr-help" && (
+          <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2">
+            <Container className="max-w-5xl px-5">
+              <VztrHelpVisualExplainer />
+            </Container>
+          </div>
+        )}
 
         {project.images && project.images.length > 0 && (
           <ProjectGallery images={project.images} />
