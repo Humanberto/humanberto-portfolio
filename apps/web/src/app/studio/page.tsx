@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge, Button, Card, Container, GradientText, SectionHeading } from "@humanberto/ui";
+import { PublishedBuilderPage } from "@/components/page-builder/published-builder-page";
 import { requireBootstrapPage } from "@/lib/site-visibility.server";
 
 export const metadata: Metadata = {
@@ -37,6 +38,8 @@ const steps = [
 
 export default async function StudioLandingPage() {
   await requireBootstrapPage("page.studio");
+  const built = await PublishedBuilderPage({ pageId: "studio" });
+  if (built) return built;
   return (
     <>
       <section className="relative flex min-h-[80vh] items-center pt-28 pb-16">

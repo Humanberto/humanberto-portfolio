@@ -45,6 +45,16 @@ export default async function MyOfficeHome() {
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Link
+          href="/myoffice/pages"
+          className="rounded-2xl border border-gold/30 bg-gold/5 p-6 hover:border-gold/50"
+        >
+          <h3 className="font-display text-xl">Pages</h3>
+          <p className="mt-2 text-sm text-white/60">
+            View every route, drag-and-drop blocks (text, image, video, address, login form), and
+            add custom pages.
+          </p>
+        </Link>
+        <Link
           href="/myoffice/projects"
           className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 hover:border-white/20"
         >

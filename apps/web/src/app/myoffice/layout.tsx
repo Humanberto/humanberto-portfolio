@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 
 const nav = [
   { href: "/myoffice", label: "Overview" },
+  { href: "/myoffice/pages", label: "Pages" },
   { href: "/myoffice/intake", label: "Intake uploads" },
   { href: "/myoffice/studio", label: "Studio" },
   { href: "/myoffice/projects", label: "Projects" },
@@ -77,7 +78,7 @@ export default async function MyOfficeLayout({
           ))}
         </nav>
       </header>
-      <main className="mx-auto max-w-5xl px-6 py-8">{children}</main>
+      <main className="mx-auto max-w-7xl px-6 py-8">{children}</main>
     </div>
   );
 }

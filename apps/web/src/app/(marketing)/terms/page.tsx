@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@humanberto/ui";
+import { PublishedBuilderPage } from "@/components/page-builder/published-builder-page";
 import { requireBootstrapPage } from "@/lib/site-visibility.server";
 
 export const metadata: Metadata = {
@@ -10,6 +11,8 @@ export const metadata: Metadata = {
 
 export default async function TermsPage() {
   await requireBootstrapPage("page.terms");
+  const built = await PublishedBuilderPage({ pageId: "terms" });
+  if (built) return built;
   return (
     <div className="pt-32 pb-20">
       <Container className="max-w-3xl prose prose-invert prose-headings:font-display">
