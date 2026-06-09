@@ -12,7 +12,8 @@ export type ContentKey =
   | "advocate_facts"
   | "projects"
   | "design_system"
-  | "design_system_history";
+  | "design_system_history"
+  | "page_builder";
 
 async function resolveTenantId(tenantId?: string): Promise<string> {
   if (tenantId?.trim()) return tenantId.trim();
